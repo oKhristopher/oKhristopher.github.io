@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Khristopher Vasconcellos — Dev Python</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0d0d;
+    --bg2: #141414;
+    --bg3: #1c1c1c;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(255,255,255,0.12);
+    --accent: #c8c8c8;
+    --accent2: #a0a0a0;
+    --text: #e8e8e8;
+    --muted: #5e5e5e;
+    --muted2: #3a3a3a;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 3rem;
+    background: rgba(13,13,13,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    letter-spacing: -0.02em;
+    color: var(--accent);
+  }
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-links a {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+
+  /* ─── HERO ─── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 3rem 5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-grid { display: none; }
+  .hero-tag {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.2s forwards;
+  }
+  .hero-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.35s forwards;
+  }
+  .hero-name span { color: var(--muted2); }
+  .hero-desc {
+    max-width: 520px;
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 2.5rem;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.5s forwards;
+  }
+  .hero-ctas {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.65s forwards;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.7rem 1.6rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: #e8e8e8;
+    color: #0d0d0d;
+    font-weight: 500;
+    border: 1px solid #e8e8e8;
+  }
+  .btn-primary:hover { background: #cfcfcf; border-color: #cfcfcf; }
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border-hover);
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+  .hero-scroll {
+    position: absolute;
+    bottom: 2.5rem;
+    right: 3rem;
+    font-size: 11px;
+    color: var(--muted2);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    writing-mode: vertical-rl;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.8s forwards;
+  }
+  .hero-scroll::before {
+    content: '';
+    display: block;
+    width: 1px;
+    height: 40px;
+    background: var(--muted2);
+  }
+
+  /* ─── SECTION ─── */
+  section { padding: 6rem 3rem; }
+  .section-label {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .section-label::after {
+    content: '';
+    display: block;
+    height: 1px;
+    width: 60px;
+    background: var(--muted2);
+  }
+
+  /* ─── PROJECTS ─── */
+  .projects { background: var(--bg); }
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 1px;
+    border: 1px solid var(--border);
+  }
+  .project-card {
+    background: var(--bg2);
+    padding: 2.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.25s;
+  }
+  .project-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 1px;
+    height: 0;
+    background: #555;
+    transition: height 0.35s ease;
+  }
+  .project-card:hover { background: var(--bg3); }
+  .project-card:hover::before { height: 100%; }
+  .project-num {
+    font-size: 11px;
+    color: var(--muted2);
+    letter-spacing: 0.1em;
+    margin-bottom: 1.5rem;
+  }
+  .project-icon {
+    font-size: 2rem;
+    margin-bottom: 1.2rem;
+  }
+  .project-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.8rem;
+    line-height: 1.2;
+  }
+  .project-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 2rem;
+  }
+  .project-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 2rem;
+  }
+  .tag {
+    font-size: 11px;
+    padding: 4px 10px;
+    border: 1px solid var(--border-hover);
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    border-radius: 2px;
+  }
+  .project-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .project-features li {
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .project-features li::before {
+    content: '→';
+    color: #555;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+    display: inline-flex;
+    align-items: center;
+    margin-top: 1.5rem;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    border: 1px solid var(--border-hover);
+    padding: 0.5rem 1.1rem;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+  .btn-github:hover { color: var(--text); border-color: var(--muted); }
+
+  /* ─── SKILLS ─── */
+  .skills-section { background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+  }
+  .skill-group-title {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+  .skill-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .skill-item {
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .skill-item::before {
+    content: '';
+    display: block;
+    width: 4px;
+    height: 4px;
+    background: var(--muted2);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ─── ABOUT ─── */
+  .about-section { background: var(--bg); }
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: start;
+  }
+  .about-text {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.9;
+  }
+  .about-text p + p { margin-top: 1.2rem; }
+  .about-meta { display: flex; flex-direction: column; gap: 1.5rem; }
+  .meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .meta-row:last-child { border-bottom: none; }
+  .meta-label { color: var(--muted2); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .meta-value { color: var(--text); }
+
+  /* ─── CONTACT ─── */
+  .contact-section {
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    text-align: center;
+  }
+  .contact-heading {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    letter-spacing: -0.03em;
+    margin-bottom: 1rem;
+    line-height: 1;
+  }
+  .contact-heading span { color: var(--accent); }
+  .contact-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 2.5rem;
+  }
+  .contact-links {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .contact-link {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    padding: 0.6rem 1.2rem;
+    border: 1px solid var(--border-hover);
+    border-radius: 2px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .contact-link:hover { color: var(--text); border-color: var(--muted); }
+
+  /* ─── FOOTER ─── */
+  footer {
+    padding: 2rem 3rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--muted2);
+    letter-spacing: 0.06em;
+  }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    .hero { padding: 0 1.5rem 4rem; }
+    section { padding: 4rem 1.5rem; }
+    .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+    footer { flex-direction: column; gap: 0.5rem; text-align: center; }
+    .hero-scroll { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">KVV_</div>
+  <div class="nav-links">
+    <a href="#projects">Projetos</a>
+    <a href="#skills">Skills</a>
+    <a href="#about">Sobre</a>
+    <a href="#contact">Contato</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-tag">// Desenvolvedor Python · Araraquara, SP</div>
+  <h1 class="hero-name">Khristopher<br/><span>Vasconcellos.</span></h1>
+  <p class="hero-desc">
+    Automação de processos, integração de APIs REST e desenvolvimento de aplicações focadas em eficiência e resolução de problemas reais.
+  </p>
+  <div class="hero-ctas">
+    <a href="#projects" class="btn btn-primary">Ver projetos →</a>
+    <a href="mailto:khristopheer4@gmail.com" class="btn btn-ghost">Enviar e-mail</a>
+  </div>
+  <div class="hero-scroll">Scroll</div>
+</section>
+
+<!-- PROJECTS -->
+<section class="projects" id="projects">
+  <div class="section-label reveal">Projetos</div>
+  <div class="projects-grid reveal">
+
+    <div class="project-card">
+      <div class="project-num">01 / 02</div>
+      <div class="project-icon">⚽</div>
+      <h2 class="project-title">Brasileirão<br/>Apostas</h2>
+      <p class="project-desc">
+        Aplicação web que analisa estatísticas do Brasileirão para auxiliar na tomada de decisão em apostas, com backend em Node.js e interface HTML/JS.
+      </p>
+      <div class="project-tags">
+        <span class="tag">Node.js</span>
+        <span class="tag">JavaScript</span>
+        <span class="tag">HTML & CSS</span>
+        <span class="tag">API REST</span>
+      </div>
+      <ul class="project-features">
+        <li>Consumo de API de estatísticas do Brasileirão</li>
+        <li>Análise de dados de partidas e times</li>
+        <li>Interface web para visualização dos dados</li>
+        <li>Backend com servidor Node.js</li>
+      </ul>
+      <a href="https://github.com/oKhristopher/brasileirao-apostas" target="_blank" class="btn-github">Ver no GitHub →</a>
+    </div>
+
+    <div class="project-card">
+      <div class="project-num">02 / 02</div>
+      <div class="project-icon">💳</div>
+      <h2 class="project-title">Controle de<br/>Dívidas</h2>
+      <p class="project-desc">
+        App desktop para organização e acompanhamento de dívidas pessoais. Interface web nativa via pywebview, com status automático, parcelas, múltiplas rendas e persistência local em JSON.
+      </p>
+      <div class="project-tags">
+        <span class="tag">Python 3</span>
+        <span class="tag">pywebview</span>
+        <span class="tag">HTML & CSS & JS</span>
+        <span class="tag">JSON</span>
+        <span class="tag">PyInstaller</span>
+      </div>
+      <ul class="project-features">
+        <li>Status visual automático: antecipado, vence em breve, em atraso</li>
+        <li>Parcelas com barra de progresso e dívidas recorrentes</li>
+        <li>Salário + múltiplas rendas com saldo calculado em tempo real</li>
+        <li>Salvamento automático e histórico de pagamentos</li>
+        <li>Exportável como .exe via PyInstaller</li>
+      </ul>
+      <a href="https://github.com/oKhristopher/dividas" target="_blank" class="btn-github">Ver no GitHub →</a>
+    </div>
+
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section class="skills-section" id="skills">
+  <div class="section-label reveal">Habilidades</div>
+  <div class="skills-grid reveal">
+    <div>
+      <div class="skill-group-title">Linguagens</div>
+      <div class="skill-list">
+        <span class="skill-item">Python — principal</span>
+        <span class="skill-item">JavaScript</span>
+        <span class="skill-item">HTML & CSS</span>
+        <span class="skill-item">Java — básico</span>
+      </div>
+    </div>
+    <div>
+      <div class="skill-group-title">Automação & APIs</div>
+      <div class="skill-list">
+        <span class="skill-item">Selenium</span>
+        <span class="skill-item">PyAutoGUI</span>
+        <span class="skill-item">Requests</span>
+        <span class="skill-item">APIs REST</span>
+      </div>
+    </div>
+    <div>
+      <div class="skill-group-title">Ferramentas</div>
+      <div class="skill-list">
+        <span class="skill-item">Git</span>
+        <span class="skill-item">VS Code</span>
+        <span class="skill-item">Base44</span>
+        <span class="skill-item">PyInstaller</span>
+      </div>
+    </div>
+    <div>
+      <div class="skill-group-title">Conceitos</div>
+      <div class="skill-list">
+        <span class="skill-item">Lógica de Programação</span>
+        <span class="skill-item">Manipulação de JSON</span>
+        <span class="skill-item">Integração de Sistemas</span>
+        <span class="skill-item">Automação de Processos</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="about-section" id="about">
+  <div class="section-label reveal">Sobre</div>
+  <div class="about-grid">
+    <div class="about-text reveal">
+      <p>Desenvolvedor formado em Análise e Desenvolvimento de Sistemas pela UNIP, com experiência prática em automação com Python e integração de APIs REST.</p>
+      <p>Perfil proativo, com facilidade de aprendizado e adaptação a novos contextos. Interesse focado em backend, automação e soluções que otimizam processos reais.</p>
+      <p>Participação ativa em comunidades de tecnologia e em constante evolução no inglês e espanhol técnico.</p>
+    </div>
+    <div class="about-meta reveal">
+      <div class="meta-row">
+        <span class="meta-label">Localização</span>
+        <span class="meta-value">Araraquara, SP</span>
+      </div>
+      <div class="meta-row">
+        <span class="meta-label">Formação</span>
+        <span class="meta-value">ADS — UNIP · 2024</span>
+      </div>
+      <div class="meta-row">
+        <span class="meta-label">Foco</span>
+        <span class="meta-value">Backend & Automação</span>
+      </div>
+      <div class="meta-row">
+        <span class="meta-label">Idiomas</span>
+        <span class="meta-value">PT · EN · ES</span>
+      </div>
+      <div class="meta-row">
+        <span class="meta-label">CNH</span>
+        <span class="meta-value">Categoria AB</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact-section" id="contact">
+  <h2 class="contact-heading reveal">Entre em<br/><span>contato.</span></h2>
+  <p class="contact-sub reveal">Aberto a oportunidades</p>
+  <div class="contact-links reveal">
+    <a href="mailto:khristopheer4@gmail.com" class="contact-link">✉ khristopheer4@gmail.com</a>
+    <a href="tel:16997988325" class="contact-link">☎ (16) 99798-8325</a>
+    <a href="https://linkedin.com/in/khristopher-vasconcellos-vieira-b25250249/" target="_blank" class="contact-link">in LinkedIn</a>
+  </div>
+</section>
+
+<footer>
+  <span>Khristopher Vasconcellos Vieira</span>
+  <span>2025 · Desenvolvedor Python</span>
+</footer>
+
+<script>
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
