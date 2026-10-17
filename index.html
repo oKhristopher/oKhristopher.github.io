@@ -703,13 +703,20 @@
       introLoader.remove();
     } else {
       document.body.style.overflow = 'hidden';
-      window.setTimeout(() => {
+      const finishIntro = () => {
+        if (!introLoader.isConnected) return;
         introLoader.classList.add('done');
         document.body.style.overflow = '';
-      }, 1900);
-      introLoader.addEventListener('transitionend', () => {
-        if (introLoader.classList.contains('done')) introLoader.remove();
-      }, { once: true });
+        window.setTimeout(() => {
+          if (introLoader.isConnected && introLoader.classList.contains('done')) introLoader.remove();
+        }, 1000);
+      };
+      window.setTimeout(finishIntro, 1900);
+      // Fallback: a la pantalla inicial nunca deve bloquear o site.
+      window.setTimeout(finishIntro, 4000);
+      introLoader.addEventListener('transitionend', (event) => {
+        if (event.target === introLoader && introLoader.classList.contains('done')) introLoader.remove();
+      });
     }
   }
   const year = document.getElementById('year');
