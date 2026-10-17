@@ -112,6 +112,41 @@ function clientKey(req) {
   const address = forwarded.length ? forwarded[forwarded.length - 1] : (req.socket?.remoteAddress || 'unknown');
   return crypto.createHash('sha256').update(address).digest('hex');
 }
+
+function retryAfterSeconds(windowSeconds, nowMs = Date.now()) {
+  const elapsed = Math.floor(nowMs / 1000) % windowSeconds;
+  return Math.max(1, windowSeconds - elapsed);
+}
+async function takePersistentRateLimit(key, limit, windowSeconds, nowMs = Date.now()) {
+  if (!pool || !databaseReady) throw new Error('Persistent rate limiter is unavailable');
+  const salt = process.env.ID_SALT;
+  if (typeof salt !== 'string' || salt.length < 32) throw new Error('ID_SALT is not configured securely');
+  const keyHash = crypto.createHmac('sha256', salt).update(String(key)).digest('hex');
+  const windowStart = Math.floor(Math.floor(nowMs / 1000) / windowSeconds) * windowSeconds;
+  const sql = 'INSERT INTO request_rate_limits (key_hash, window_start, window_seconds, hit_count, expires_at)\n'
+    + 'VALUES ($1, $2, $3, 1, to_timestamp($2 + $3))\n'
+    + 'ON CONFLICT (key_hash, window_start, window_seconds) DO UPDATE\n'
+    + 'SET hit_count = request_rate_limits.hit_count + 1\n'
+    + 'WHERE request_rate_limits.hit_count < $4\n'
+    + 'RETURNING hit_count';
+  const result = await pool.query(sql, [keyHash, windowStart, windowSeconds, limit]);
+  return result.rows.length > 0;
+}
+async function persistentChatLimit(req, session) {
+  const ip = clientKey(req);
+  const checks = [
+    { key: 'chat:ip-minute:' + ip, limit: 12, seconds: 60 },
+    { key: 'chat:session-minute:' + session, limit: 5, seconds: 60 },
+    { key: 'chat:ip-day:' + ip, limit: 80, seconds: 86400 },
+    { key: 'chat:global-minute', limit: 120, seconds: 60 }
+  ];
+  for (const check of checks) {
+    if (!await takePersistentRateLimit(check.key, check.limit, check.seconds)) {
+      return { allowed: false, retryAfter: retryAfterSeconds(check.seconds) };
+    }
+  }
+  return { allowed: true };
+}
 function rateLimit(req, res, bucket, identity = '') {
   const policy = RATE_POLICIES[bucket];
   if (!policy) return true;
@@ -182,6 +217,17 @@ async function initDatabase() {
     message_count INTEGER NOT NULL DEFAULT 0 CHECK (message_count >= 0 AND message_count <= ${DAILY_LIMIT}),
     PRIMARY KEY (installation_hash, usage_date)
   )`);
+  await pool.query(`CREATE TABLE IF NOT EXISTS request_rate_limits (
+    key_hash CHAR(64) NOT NULL,
+    window_start BIGINT NOT NULL,
+    window_seconds INTEGER NOT NULL,
+    hit_count INTEGER NOT NULL DEFAULT 0 CHECK (hit_count >= 0),
+    expires_at TIMESTAMPTZ NOT NULL,
+    PRIMARY KEY (key_hash, window_start, window_seconds)
+  )`);
+  await pool.query('CREATE INDEX IF NOT EXISTS idx_request_rate_limits_expiry ON request_rate_limits (expires_at)');
+  await pool.query('DELETE FROM request_rate_limits WHERE expires_at < NOW()');
+  await pool.query('DELETE FROM daily_usage WHERE usage_date < $1::date - 30', [brazilDate()]);
   databaseReady = true;
 }
 async function currentUsage(id) {
@@ -259,6 +305,12 @@ async function readBody(req, maxBytes=12000) {
 }
 async function handleBible(req, res, url) {
   if (req.method !== 'GET') return json(res,405,{error:'Método não permitido'});
+  let allowedByDatabase;
+  try { allowedByDatabase = await takePersistentRateLimit('bible:' + clientKey(req), 90, 60); }
+  catch { return json(res, 503, { error: 'Limitador de consultas bíblicas indisponível.' }); }
+  if (!allowedByDatabase) return json(res, 429, { error: 'Muitas consultas bíblicas em pouco tempo.', code: 'RATE_LIMITED' }, {
+    'Retry-After': String(retryAfterSeconds(60))
+  });
   const rest = url.pathname.replace(/^\/api\/bible\/?/, '');
   let upstreamPath='';
   if (rest === 'books' || /^books\/[a-z0-9-]+$/.test(rest)) upstreamPath=rest;
@@ -298,6 +350,10 @@ async function api(req,res,url) {
   if (req.method === 'GET' && url.pathname === '/api/usage') {
     if (!databaseReady || !process.env.ID_SALT) return json(res, 503, { error: 'Serviço indisponível no momento.' });
     try {
+      const usageAllowed = await takePersistentRateLimit('usage:' + clientKey(req), 60, 60);
+      if (!usageAllowed) return json(res, 429, { error: 'Muitas consultas de limite em pouco tempo.', code: 'RATE_LIMITED' }, {
+        'Retry-After': String(retryAfterSeconds(60))
+      });
       const id = sessionId(req, res);
       return json(res, 200, { ok: true, ...await currentUsage(id) });
     } catch {
@@ -328,6 +384,13 @@ async function api(req,res,url) {
     } catch {
       return json(res, 503, { error: 'Serviço indisponível no momento.' });
     }
+    let persistentLimit;
+    try { persistentLimit = await persistentChatLimit(req, id); }
+    catch { return json(res, 503, { error: 'Limitador persistente indisponível.', code: 'RATE_LIMIT_UNAVAILABLE' }); }
+    if (!persistentLimit.allowed) return json(res, 429, {
+      error: 'Muitas mensagens em pouco tempo. Aguarde e tente novamente.',
+      code: 'RATE_LIMITED'
+    }, { 'Retry-After': String(persistentLimit.retryAfter) });
     let reservation;
     try { reservation = await reserveUsage(id); }
     catch { return json(res, 503, { error: 'Não foi possível verificar o limite diário.' }); }
@@ -366,6 +429,14 @@ async function serveStatic(req,res,url) {
     res.writeHead(200,headers); if(req.method==='HEAD') return res.end(); return res.end(data);
   } catch { return json(res,404,{error:'Arquivo não encontrado'}); }
 }
+const cleanupTimer = setInterval(() => {
+  if (!pool || !databaseReady) return;
+  Promise.all([
+    pool.query('DELETE FROM request_rate_limits WHERE expires_at < NOW()'),
+    pool.query('DELETE FROM daily_usage WHERE usage_date < $1::date - 30', [brazilDate()])
+  ]).catch(() => console.error('Limpeza de registros de segurança indisponível'));
+}, 6 * 60 * 60 * 1000);
+cleanupTimer.unref();
 const server=http.createServer(async (req,res)=>{
   try { const url=new URL(req.url,'http://localhost'); await api(req,res,url); }
   catch(error) { console.error('Erro interno:',error.code || error.name || 'InternalError'); if(!res.headersSent) json(res,500,{error:'Erro interno do servidor.'}); else res.end(); }
@@ -376,4 +447,4 @@ server.listen(PORT,'0.0.0.0',async()=>{
   try { await initDatabase(); console.log('Banco de dados pronto.'); }
   catch(error) { databaseError=error; console.error('Banco indisponível no início:',error.code || error.name || 'DatabaseError'); setTimeout(async function retry(){ try{await initDatabase();console.log('Banco de dados pronto.');}catch(e){databaseError=e;setTimeout(retry,10000);} },10000); }
 });
-process.on('SIGTERM',async()=>{server.close();if(pool)await pool.end().catch(()=>{});process.exit(0);});
+process.on('SIGTERM',async()=>{clearInterval(cleanupTimer);server.close();if(pool)await pool.end().catch(()=>{});process.exit(0);});
