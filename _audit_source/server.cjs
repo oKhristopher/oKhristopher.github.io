@@ -10,21 +10,6 @@ const PORT = Number(process.env.PORT || 10000);
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const BIBLE_API_BASE = 'https://abibliadigital.api.br/api/';
 const DAILY_LIMIT = 20;
-const MAX_MESSAGE_LENGTH = 700;
-const MAX_CONTEXT_TURNS = 4;
-const SESSION_COOKIE = 'pv_session';
-const SESSION_MAX_AGE = 31536000;
-const ALLOWED_ORIGINS = new Set(String(process.env.ALLOWED_ORIGINS || '').split(',').map(value => {
-  try { return new URL(value.trim()).origin; } catch { return ''; }
-}).filter(Boolean));
-const UPSTREAM_HOSTS = new Set(['generativelanguage.googleapis.com', 'abibliadigital.api.br']);
-const RATE_LIMITS = new Map();
-const RATE_POLICIES = {
-  api: { limit: 120, windowMs: 60_000 },
-  chat: { limit: 8, windowMs: 60_000 },
-  chatSession: { limit: 6, windowMs: 60_000 },
-  bible: { limit: 90, windowMs: 60_000 }
-};
 const DEFAULT_MODEL = 'gemini-3.5-flash-lite';
 const GEMINI_MODEL = process.env.GEMINI_MODEL || DEFAULT_MODEL;
 const THEMES = ['anxiety','strength','gratitude','peace','hope','sadness','fear','loneliness','forgiveness','patience','love','decision','grief','family','other'];
@@ -51,28 +36,16 @@ const PASSAGES = {
 };
 const pool = process.env.DATABASE_URL ? new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: process.env.DATABASE_SSL_REJECT_UNAUTHORIZED !== 'false' } : undefined,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
   max: 5,
   connectionTimeoutMillis: 10000
 }) : null;
 let databaseReady = false;
 let databaseError = null;
 
-function securityHeaders() {
-  const headers = {
-    'X-Content-Type-Options': 'nosniff',
-    'X-Frame-Options': 'DENY',
-    'Referrer-Policy': 'strict-origin-when-cross-origin',
-    'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
-    'Cross-Origin-Resource-Policy': 'same-origin',
-    'Cache-Control': 'no-store'
-  };
-  if (process.env.NODE_ENV === 'production') headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains';
-  return headers;
-}
 function json(res, status, value, headers={}) {
   const body = JSON.stringify(value);
-  res.writeHead(status, { ...securityHeaders(), 'Content-Type':'application/json; charset=utf-8', ...headers });
+  res.writeHead(status, { 'Content-Type':'application/json; charset=utf-8', 'Cache-Control':'no-store', 'X-Content-Type-Options':'nosniff', ...headers });
   res.end(body);
 }
 function brazilDate() {
@@ -85,87 +58,6 @@ function hashId(id) {
   const salt = process.env.ID_SALT;
   if (!salt) throw new Error('ID_SALT is not configured');
   return crypto.createHash('sha256').update(`${salt}:${id}`).digest('hex');
-}
-function originAllowed(req) {
-  const origin = req.headers.origin;
-  if (!origin) return req.headers['sec-fetch-site'] !== 'cross-site';
-  if (origin === 'null') return false;
-  try {
-    const parsed = new URL(origin);
-    if (!['http:', 'https:'].includes(parsed.protocol)) return false;
-    const host = String(req.headers.host || '').toLowerCase();
-    const sameOriginHost = parsed.host.toLowerCase() === host
-      && (process.env.NODE_ENV !== 'production' || parsed.protocol === 'https:');
-    return sameOriginHost || ALLOWED_ORIGINS.has(parsed.origin);
-  } catch { return false; }
-}
-function applyCors(req, res) {
-  if (!originAllowed(req)) return false;
-  const origin = req.headers.origin;
-  if (origin) {
-    res.setHeader('Vary', 'Origin');
-    res.setHeader('Access-Control-Allow-Origin', new URL(origin).origin);
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-  }
-  return true;
-}
-function clientKey(req) {
-  const forwarded = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim();
-  const address = forwarded || req.socket?.remoteAddress || 'unknown';
-  return crypto.createHash('sha256').update(address).digest('hex');
-}
-function rateLimit(req, res, bucket, identity = '') {
-  const policy = RATE_POLICIES[bucket];
-  if (!policy) return true;
-  const now = Date.now();
-  const key = `${bucket}:${clientKey(req)}:${identity ? crypto.createHash('sha256').update(identity).digest('hex') : ''}`;
-  let entry = RATE_LIMITS.get(key);
-  if (!entry || now >= entry.resetAt) {
-    entry = { count: 0, resetAt: now + policy.windowMs };
-    RATE_LIMITS.set(key, entry);
-  }
-  if (entry.count >= policy.limit) {
-    return json(res, 429, { error: 'Muitas solicitações. Aguarde um momento e tente novamente.', code: 'RATE_LIMITED' }, {
-      'Retry-After': String(Math.max(1, Math.ceil((entry.resetAt - now) / 1000)))
-    }), false;
-  }
-  entry.count += 1;
-  if (RATE_LIMITS.size > 10000) {
-    for (const [storedKey, value] of RATE_LIMITS) if (now >= value.resetAt) RATE_LIMITS.delete(storedKey);
-    if (RATE_LIMITS.size > 20000) RATE_LIMITS.clear();
-  }
-  return true;
-}
-function sessionId(req, res) {
-  const salt = process.env.ID_SALT;
-  if (!salt) throw new Error('ID_SALT is not configured');
-  const cookieHeader = String(req.headers.cookie || '');
-  const pair = cookieHeader.split(';').map(value => value.trim()).find(value => value.startsWith(SESSION_COOKIE + '='));
-  const token = pair ? pair.slice(SESSION_COOKIE.length + 1) : '';
-  const [id, signature] = token.split('.');
-  let valid = false;
-  if (/^[A-Za-z0-9_-]{40,50}$/.test(id || '') && /^[a-f0-9]{64}$/i.test(signature || '')) {
-    const expected = crypto.createHmac('sha256', salt).update(id).digest();
-    const actual = Buffer.from(signature, 'hex');
-    valid = actual.length === expected.length && crypto.timingSafeEqual(expected, actual);
-  }
-  const sessionId = valid ? id : crypto.randomBytes(32).toString('base64url');
-  const signed = crypto.createHmac('sha256', salt).update(sessionId).digest('hex');
-  const origin = req.headers.origin;
-  let crossOriginAllowed = false;
-  try {
-    crossOriginAllowed = Boolean(origin)
-      && new URL(origin).host.toLowerCase() !== String(req.headers.host || '').toLowerCase()
-      && ALLOWED_ORIGINS.has(new URL(origin).origin);
-  } catch { /* Origin validation runs before the API handler. */ }
-  const secure = process.env.NODE_ENV === 'production' || crossOriginAllowed ? '; Secure' : '';
-  const sameSite = crossOriginAllowed ? 'None' : 'Strict';
-  res.setHeader('Set-Cookie', `${SESSION_COOKIE}=${sessionId}.${signed}; Path=/; HttpOnly; SameSite=${sameSite}; Max-Age=${SESSION_MAX_AGE}${secure}`);
-  return sessionId;
-}
-function cleanUserText(value, maxLength) {
-  if (typeof value !== 'string') return '';
-  return value.normalize('NFC').replace(/[\\u0000-\\u0008\\u000B\\u000C\\u000E-\\u001F\\u007F]/g, '').trim().slice(0, maxLength);
 }
 async function initDatabase() {
   if (!pool) throw new Error('DATABASE_URL is not configured');
@@ -199,9 +91,7 @@ async function releaseUsage(reservation) {
   await pool.query('UPDATE daily_usage SET message_count = GREATEST(0, message_count - 1) WHERE installation_hash = $1 AND usage_date = $2', [reservation.hash, reservation.date]);
 }
 async function requestJson(url, options={}) {
-  const parsedUrl = new URL(url);
-  if (parsedUrl.protocol !== 'https:' || !UPSTREAM_HOSTS.has(parsedUrl.hostname)) throw new Error('Upstream host not allowed');
-  const response = await fetch(parsedUrl, { ...options, redirect:'error', signal:AbortSignal.timeout(15000) });
+  const response = await fetch(url, { ...options, signal:AbortSignal.timeout(15000) });
   const data = await response.json().catch(() => null);
   if (!response.ok) throw new Error(data?.error?.message || data?.message || `HTTP ${response.status}`);
   return data;
@@ -216,10 +106,10 @@ ${context.map((turn,i)=>`${i+1}. Pessoa: ${turn.user}\n   Palavra Viva: ${turn.a
 
 Mensagem atual:
 ${message}`}] }],
-    generationConfig:{temperature:0.35,maxOutputTokens:220,responseMimeType:'application/json',responseSchema:{type:'OBJECT',properties:{theme:{type:'STRING',enum:THEMES},response:{type:'STRING'},connection:{type:'STRING'}},required:['theme','response','connection']}}
+    generationConfig:{temperature:0.4,responseMimeType:'application/json',responseSchema:{type:'OBJECT',properties:{theme:{type:'STRING',enum:THEMES},response:{type:'STRING'},connection:{type:'STRING'}},required:['theme','response','connection']}}
   };
-  const data = await requestJson(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:generateContent`, {
-    method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':process.env.GEMINI_API_KEY},body:JSON.stringify(payload)
+  const data = await requestJson(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:generateContent?key=${encodeURIComponent(process.env.GEMINI_API_KEY)}`, {
+    method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)
   });
   const raw = data?.candidates?.[0]?.content?.parts?.map(p=>p.text || '').join('').trim();
   if (!raw) throw new Error('Interpretação vazia');
@@ -240,15 +130,12 @@ async function retrieveVerse(ref) {
   return { bookName, chapter:Number(chapter), verseNumber, version:'NVI', text:data.text.trim(), reference:`${bookName} ${chapter}:${verseNumber} · NVI` };
 }
 async function readBody(req, maxBytes=12000) {
-  let body = '';
-  let byteCount = 0;
+  let body='';
   for await (const chunk of req) {
-    byteCount += Buffer.byteLength(chunk);
-    if (byteCount > maxBytes) throw Object.assign(new Error('Corpo da requisição muito grande.'), { status: 413 });
     body += chunk;
+    if (Buffer.byteLength(body) > maxBytes) throw Object.assign(new Error('Mensagem muito grande'), {status:413});
   }
-  try { return JSON.parse(body || '{}'); }
-  catch { throw Object.assign(new Error('Corpo JSON inválido.'), { status: 400 }); }
+  try { return JSON.parse(body || '{}'); } catch { throw Object.assign(new Error('Corpo JSON inválido'), {status:400}); }
 }
 async function handleBible(req, res, url) {
   if (req.method !== 'GET') return json(res,405,{error:'Método não permitido'});
@@ -263,87 +150,46 @@ async function handleBible(req, res, url) {
     upstreamPath=`verses/${match[1]}/${match[2]}/${chapter}${verse?'/'+verse:''}`;
   }
   try {
-    const response=await fetch(BIBLE_API_BASE+upstreamPath,{headers:{Accept:'application/json'},redirect:'error',signal:AbortSignal.timeout(12000)});
+    const response=await fetch(BIBLE_API_BASE+upstreamPath,{headers:{Accept:'application/json'},signal:AbortSignal.timeout(12000)});
     const payload=await response.text();
-    res.writeHead(response.status,{...securityHeaders(),'Content-Type':response.headers.get('content-type')||'application/json; charset=utf-8','Cache-Control':'public, max-age=300'});res.end(payload);
+    res.writeHead(response.status,{'Content-Type':response.headers.get('content-type')||'application/json; charset=utf-8','Cache-Control':'public, max-age=300','X-Content-Type-Options':'nosniff'});res.end(payload);
   } catch { json(res,502,{error:'Não foi possível conectar à fonte bíblica agora.'}); }
 }
 async function api(req,res,url) {
-  if (url.pathname.startsWith('/api/')) {
-    if (!applyCors(req, res)) return json(res, 403, { error: 'Origem não permitida.' });
-    if (req.method === 'OPTIONS') {
-      res.writeHead(204, {
-        ...securityHeaders(),
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Max-Age': '600'
-      });
-      return res.end();
-    }
-    if (!rateLimit(req, res, 'api')) return;
-    if (url.pathname.startsWith('/api/bible') && !rateLimit(req, res, 'bible')) return;
-    if (url.pathname === '/api/chat' && req.method === 'POST' && !rateLimit(req, res, 'chat')) return;
+  if(req.method==='GET' && url.pathname==='/api/health') return json(res,200,{ok:true,aiConfigured:Boolean(process.env.GEMINI_API_KEY),databaseConfigured:databaseReady,model:GEMINI_MODEL,limit:DAILY_LIMIT});
+  if(url.pathname==='/api/bible' || url.pathname.startsWith('/api/bible/')) return handleBible(req,res,url);
+  if(req.method==='GET' && url.pathname==='/api/usage') {
+    if(!databaseReady) return json(res,503,{error:'Banco de dados não está pronto'});
+    const id=url.searchParams.get('installationId')||'';
+    if(!validInstallId(id)) return json(res,400,{error:'Identificador de instalação inválido'});
+    try { return json(res,200,{ok:true,...await currentUsage(id)}); } catch { return json(res,503,{error:'Não foi possível consultar o limite diário'}); }
   }
-  if (req.method === 'GET' && url.pathname === '/api/health') {
-    return json(res, 200, { ok: true, ready: Boolean(databaseReady && process.env.GEMINI_API_KEY && process.env.ID_SALT) });
-  }
-  if (url.pathname === '/api/bible' || url.pathname.startsWith('/api/bible/')) return handleBible(req, res, url);
-  if (req.method === 'GET' && url.pathname === '/api/usage') {
-    if (!databaseReady || !process.env.ID_SALT) return json(res, 503, { error: 'Serviço indisponível no momento.' });
-    try {
-      const id = sessionId(req, res);
-      const usage = await currentUsage(id);
-      return json(res, 200, { ok: true, ...usage });
-    } catch {
-      return json(res, 503, { error: 'Não foi possível consultar o limite diário.' });
-    }
-  }
-  if (req.method === 'POST' && url.pathname === '/api/chat') {
-    if (!databaseReady || !process.env.GEMINI_API_KEY || !process.env.ID_SALT) return json(res, 503, { error: 'SERVER_NOT_CONFIGURED' });
-    const contentType = String(req.headers['content-type'] || '').toLowerCase();
-    if (!/^application\\/json(?:\\s*;|$)/.test(contentType)) return json(res, 415, { error: 'Envie os dados em formato JSON.' });
-    let body;
-    try { body = await readBody(req); } catch (error) { return json(res, error.status || 400, { error: error.message }); }
-    if (!body || typeof body !== 'object' || Array.isArray(body)) return json(res, 400, { error: 'Corpo JSON inválido.' });
-    if (typeof body.message !== 'string' || body.message.length > MAX_MESSAGE_LENGTH) return json(res, 400, { error: 'A mensagem deve ter entre 1 e 700 caracteres.' });
-    const message = cleanUserText(body.message, MAX_MESSAGE_LENGTH);
-    if (!message) return json(res, 400, { error: 'A mensagem deve ter entre 1 e 700 caracteres.' });
-    const context = Array.isArray(body.context) ? body.context.slice(-MAX_CONTEXT_TURNS).map(turn => {
-      if (!turn || typeof turn !== 'object' || Array.isArray(turn) || typeof turn.user !== 'string') return null;
-      const user = cleanUserText(turn.user, 250);
-      const assistantRaw = typeof turn.assistant === 'string' ? turn.assistant : (typeof turn.reply === 'string' ? turn.reply : '');
-      const assistant = cleanUserText(assistantRaw, 350);
-      return user ? { user, assistant } : null;
-    }).filter(Boolean) : [];
-    let id;
-    try {
-      id = sessionId(req, res);
-      if (!rateLimit(req, res, 'chatSession', id)) return;
-    } catch {
-      return json(res, 503, { error: 'Serviço indisponível no momento.' });
-    }
+  if(req.method==='POST' && url.pathname==='/api/chat') {
+    if(!databaseReady || !process.env.GEMINI_API_KEY || !process.env.ID_SALT) return json(res,503,{error:'SERVER_NOT_CONFIGURED'});
+    let body; try { body=await readBody(req); } catch(e) { return json(res,e.status||400,{error:e.message}); }
+    const id=String(body.installationId||''), message=String(body.message||'').trim(), context=Array.isArray(body.context)?body.context.slice(-6).map(v=>{if(typeof v==='string')return {user:v.slice(0,300),assistant:''};if(v&&typeof v==='object')return {user:String(v.user||'').slice(0,300),assistant:String(v.assistant||v.reply||'').slice(0,500)};return null;}).filter(v=>v&&v.user):[];
+    if(!validInstallId(id)) return json(res,400,{error:'Identificador de instalação inválido'});
+    if(!message || message.length>700) return json(res,400,{error:'A mensagem deve ter entre 1 e 700 caracteres'});
     let reservation;
-    try { reservation = await reserveUsage(id); }
-    catch { return json(res, 503, { error: 'Não foi possível verificar o limite diário.' }); }
-    if (!reservation) return json(res, 429, { error: 'Você atingiu o limite diário de 20 mensagens.', code: 'DAILY_LIMIT_REACHED', limit: DAILY_LIMIT, remaining: 0 });
+    try { reservation=await reserveUsage(id); } catch { return json(res,503,{error:'Não foi possível verificar o limite diário'}); }
+    if(!reservation) return json(res,429,{error:'Você atingiu o limite diário de 20 mensagens.',code:'DAILY_LIMIT_REACHED',limit:DAILY_LIMIT,remaining:0});
     try {
-      const interpretation = await interpretSituation(message, context);
-      const { theme, response, connection } = interpretation;
-      if (theme === 'other') return json(res, 200, { ok: true, theme, themeLabel: THEME_LABELS[theme], response, used: reservation.used, remaining: reservation.remaining, limit: DAILY_LIMIT });
-      const ref = PASSAGES[theme];
-      if (!ref) throw new Error('Tema sem referência permitida');
-      const passage = await retrieveVerse(ref);
-      return json(res, 200, { ok: true, theme, themeLabel: THEME_LABELS[theme], response, connection, passage, used: reservation.used, remaining: reservation.remaining, limit: DAILY_LIMIT });
-    } catch (error) {
-      await releaseUsage(reservation).catch(() => {});
-      console.error('Falha ao classificar ou confirmar passagem:', error.name || 'Error');
-      return json(res, 502, { error: 'Não foi possível confirmar uma passagem agora. Tente novamente mais tarde.', code: 'PASSAGE_UNAVAILABLE' });
+      const interpretation=await interpretSituation(message,context);
+      const {theme,response,connection}=interpretation;
+      if(theme==='other') return json(res,200,{ok:true,theme,themeLabel:THEME_LABELS[theme],response,used:reservation.used,remaining:reservation.remaining,limit:DAILY_LIMIT});
+      const ref=PASSAGES[theme]; if(!ref) throw new Error('Tema sem referência permitida');
+      const passage=await retrieveVerse(ref);
+      return json(res,200,{ok:true,theme,themeLabel:THEME_LABELS[theme],response,connection,passage,used:reservation.used,remaining:reservation.remaining,limit:DAILY_LIMIT});
+    } catch(e) {
+      await releaseUsage(reservation).catch(()=>{});
+      console.error('Falha ao classificar ou confirmar passagem:',e.message);
+      return json(res,502,{error:'Não foi possível confirmar uma passagem agora. Tente novamente mais tarde.',code:'PASSAGE_UNAVAILABLE'});
     }
   }
-  if (url.pathname.startsWith('/api/')) return json(res, 404, { error: 'Rota não encontrada.' });
-  return serveStatic(req, res, url);
+  if(url.pathname.startsWith('/api/')) return json(res,404,{error:'Rota não encontrada'});
+  return serveStatic(req,res,url);
 }
-const CONTENT_TYPES=const CONTENT_TYPES={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.ico':'image/x-icon','.webmanifest':'application/manifest+json'};
+const CONTENT_TYPES={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.ico':'image/x-icon','.webmanifest':'application/manifest+json'};
 async function serveStatic(req,res,url) {
   if(!['GET','HEAD'].includes(req.method)) return json(res,405,{error:'Método não permitido'});
   let pathname; try { pathname=decodeURIComponent(url.pathname); } catch { return json(res,400,{error:'URL inválida'}); }
@@ -353,8 +199,7 @@ async function serveStatic(req,res,url) {
   try {
     let data=await fs.readFile(file);
     const ext=path.extname(file).toLowerCase();
-    const headers={...securityHeaders(),'Content-Type':CONTENT_TYPES[ext]||'application/octet-stream'};
-    if (ext === '.html') headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://abibliadigital.api.br; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'";
+    const headers={'Content-Type':CONTENT_TYPES[ext]||'application/octet-stream','X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin'};
     if(pathname.endsWith('/sw.js')) headers['Service-Worker-Allowed']='/';
     if(['/index.html','/app.js','/sw.js'].includes(pathname)) headers['Cache-Control']='no-cache'; else headers['Cache-Control']='public, max-age=3600';
     res.writeHead(200,headers); if(req.method==='HEAD') return res.end(); return res.end(data);
@@ -362,12 +207,12 @@ async function serveStatic(req,res,url) {
 }
 const server=http.createServer(async (req,res)=>{
   try { const url=new URL(req.url,'http://localhost'); await api(req,res,url); }
-  catch(error) { console.error('Erro interno:',error.code || error.name || 'InternalError'); if(!res.headersSent) json(res,500,{error:'Erro interno do servidor.'}); else res.end(); }
+  catch(error) { console.error('Erro interno:',error.message); if(!res.headersSent) json(res,500,{error:'Erro interno do servidor.'}); else res.end(); }
 });
 server.requestTimeout=20000;
 server.listen(PORT,'0.0.0.0',async()=>{
   console.log(`Palavra Viva server escutando na porta ${PORT}`);
   try { await initDatabase(); console.log('Banco de dados pronto.'); }
-  catch(error) { databaseError=error; console.error('Banco indisponível no início:',error.code || error.name || 'DatabaseError'); setTimeout(async function retry(){ try{await initDatabase();console.log('Banco de dados pronto.');}catch(e){databaseError=e;setTimeout(retry,10000);} },10000); }
+  catch(error) { databaseError=error; console.error('Banco indisponível no início:',error.message); setTimeout(async function retry(){ try{await initDatabase();console.log('Banco de dados pronto.');}catch(e){databaseError=e;setTimeout(retry,10000);} },10000); }
 });
 process.on('SIGTERM',async()=>{server.close();if(pool)await pool.end().catch(()=>{});process.exit(0);});
