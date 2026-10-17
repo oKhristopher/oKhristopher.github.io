@@ -31,7 +31,7 @@ jobs:
           mkdir -p _audit_source/public
           cp runtime-app/server.cjs _audit_source/server.cjs
           cp runtime-app/package.json _audit_source/package.json
-          for f in index.html app.js styles.css sw.js manifest.json; do
+          for f in index.html app.js styles.css sw.js manifest.json config.js; do
             cp "runtime-app/public/$f" "_audit_source/public/$f" 2>/dev/null || true
           done
           python3 - <<'PY'
