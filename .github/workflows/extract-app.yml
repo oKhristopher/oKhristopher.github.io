@@ -50,7 +50,7 @@ jobs:
                   p.unlink()
                   continue
               s = re.sub(r'(?i)((?:api[_-]?key|secret|password|passwd|token|private[_-]?key|authorization|client[_-]?secret)\\s*[:=]\\s*[\\'"])[^\\'"]+([\\'"])', r'\\1[REDACTED]\\2', s)
-              s = re.sub(r'(?i)(Bearer\\s+)[A-Za-z0-9._~+/=-]{16,}', r'\\1[REDACTED]', s)
+              s = re.sub(r"(?i)(Bearer\\s+)[A-Za-z0-9._~+/=-]{16,}", r"\\1[REDACTED]", s)
               p.write_text(s)
           PY
           echo "Extracted app source file list:"
