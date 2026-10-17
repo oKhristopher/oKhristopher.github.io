@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - security-hardening
+      - security-hardening-v2
+      - deploy/palavra-viva-v2
   pull_request:
     branches:
       - deploy/palavra-viva-v2
