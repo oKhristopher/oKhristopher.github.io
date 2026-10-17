@@ -163,7 +163,8 @@ function sessionId(req, res) {
       && new URL(req.headers.origin).host.toLowerCase() !== String(req.headers.host || '').toLowerCase()
       && ALLOWED_ORIGINS.has(new URL(req.headers.origin).origin);
   } catch { /* Origin is validated before the API handler. */ }
-  const secure = process.env.NODE_ENV === 'production' || crossOriginAllowed ? '; Secure' : '';
+  const forwardedProto = String(req.headers['x-forwarded-proto'] || '').split(',')[0].trim().toLowerCase();
+  const secure = process.env.NODE_ENV === 'production' || forwardedProto === 'https' || crossOriginAllowed ? '; Secure' : '';
   const sameSite = crossOriginAllowed ? 'None' : 'Strict';
   const maxAge = Math.max(0, expiresAt - nowSeconds);
   res.setHeader('Set-Cookie', `${SESSION_COOKIE}=${value}.${expiresAt}.${signed}; Path=/; HttpOnly; SameSite=${sameSite}; Max-Age=${maxAge}${secure}`);
