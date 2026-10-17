@@ -1,0 +1,17 @@
+{
+  "name": "palavra-viva",
+  "version": "1.1.0",
+  "private": true,
+  "type": "module",
+  "description": "PWA móvel de reflexão bíblica com API segura para classificação temática",
+  "scripts": {
+    "start": "node server.cjs",
+    "test": "node --test tests/*.test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "pg": "^8.16.3"
+  }
+}
