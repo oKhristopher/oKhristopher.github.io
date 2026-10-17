@@ -141,15 +141,22 @@ function sessionId(req, res) {
   const cookieHeader = String(req.headers.cookie || '');
   const pair = cookieHeader.split(';').map(value => value.trim()).find(value => value.startsWith(SESSION_COOKIE + '='));
   const token = pair ? pair.slice(SESSION_COOKIE.length + 1) : '';
-  const [id, signature] = token.split('.');
+  const [id, expiresText, signature] = token.split('.');
+  const nowSeconds = Math.floor(Date.now() / 1000);
+  const parsedExpiry = Number(expiresText);
   let valid = false;
-  if (/^[A-Za-z0-9_-]{40,50}$/.test(id || '') && /^[a-f0-9]{64}$/i.test(signature || '')) {
-    const expected = crypto.createHmac('sha256', salt).update(id).digest();
+  if (/^[A-Za-z0-9_-]{40,50}$/.test(id || '')
+      && Number.isSafeInteger(parsedExpiry)
+      && parsedExpiry > nowSeconds
+      && parsedExpiry <= nowSeconds + SESSION_MAX_AGE + 60
+      && /^[a-f0-9]{64}$/i.test(signature || '')) {
+    const expected = crypto.createHmac('sha256', salt).update(\`\${id}.\${parsedExpiry}\`).digest();
     const actual = Buffer.from(signature, 'hex');
     valid = actual.length === expected.length && crypto.timingSafeEqual(expected, actual);
   }
   const value = valid ? id : crypto.randomBytes(32).toString('base64url');
-  const signed = crypto.createHmac('sha256', salt).update(value).digest('hex');
+  const expiresAt = valid ? parsedExpiry : nowSeconds + SESSION_MAX_AGE;
+  const signed = crypto.createHmac('sha256', salt).update(\`\${value}.\${expiresAt}\`).digest('hex');
   let crossOriginAllowed = false;
   try {
     crossOriginAllowed = Boolean(req.headers.origin)
@@ -158,7 +165,8 @@ function sessionId(req, res) {
   } catch { /* Origin is validated before the API handler. */ }
   const secure = process.env.NODE_ENV === 'production' || crossOriginAllowed ? '; Secure' : '';
   const sameSite = crossOriginAllowed ? 'None' : 'Strict';
-  res.setHeader('Set-Cookie', `${SESSION_COOKIE}=${value}.${signed}; Path=/; HttpOnly; SameSite=${sameSite}; Max-Age=${SESSION_MAX_AGE}${secure}`);
+  const maxAge = Math.max(0, expiresAt - nowSeconds);
+  res.setHeader('Set-Cookie', `${SESSION_COOKIE}=${value}.${expiresAt}.${signed}; Path=/; HttpOnly; SameSite=${sameSite}; Max-Age=${maxAge}${secure}`);
   return value;
 }
 function cleanUserText(value, maxLength) {
