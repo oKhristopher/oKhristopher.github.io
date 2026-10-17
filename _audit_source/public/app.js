@@ -3,13 +3,12 @@
 const $ = (s, root=document) => root.querySelector(s);
 const $$ = (s, root=document) => [...root.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const makeId = () => (crypto && crypto.randomUUID) ? crypto.randomUUID() : Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10);
+const makeId = () => (crypto && crypto.randomUUID) ? crypto.randomUUID() : Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2,'0')).join('');
 const APP_VERSION = '1.2.0';
 const DAILY_LIMIT = 20;
 const SAVE_KEY = 'palavra.saved.v1';
 const USAGE_KEY = 'palavra.usage.v1';
 const DRAFT_KEY = 'palavra.draft.v1';
-const DEVICE_KEY = 'palavra.installation.v1';
 const API_BASE = String(window.APP_CONFIG?.apiBaseUrl || '').trim().replace(/\/$/, '');
 const SERVER_BASE = API_BASE || (/^https?:$/.test(location.protocol) ? window.location.origin : '');
 const BIBLE_API = 'https://abibliadigital.api.br/api/';
@@ -19,8 +18,6 @@ const bibleBooks = [
 {n:'Mateus',a:'mt',c:28,t:'nt'},{n:'Marcos',a:'mc',c:16,t:'nt'},{n:'Lucas',a:'lc',c:24,t:'nt'},{n:'João',a:'jo',c:21,t:'nt'},{n:'Atos',a:'at',c:28,t:'nt'},{n:'Romanos',a:'rm',c:16,t:'nt'},{n:'1 Coríntios',a:'1co',c:16,t:'nt'},{n:'2 Coríntios',a:'2co',c:13,t:'nt'},{n:'Gálatas',a:'gl',c:6,t:'nt'},{n:'Efésios',a:'ef',c:6,t:'nt'},{n:'Filipenses',a:'fp',c:4,t:'nt'},{n:'Colossenses',a:'cl',c:4,t:'nt'},{n:'1 Tessalonicenses',a:'1ts',c:5,t:'nt'},{n:'2 Tessalonicenses',a:'2ts',c:3,t:'nt'},{n:'1 Timóteo',a:'1tm',c:6,t:'nt'},{n:'2 Timóteo',a:'2tm',c:4,t:'nt'},{n:'Tito',a:'tt',c:3,t:'nt'},{n:'Filemom',a:'fm',c:1,t:'nt'},{n:'Hebreus',a:'hb',c:13,t:'nt'},{n:'Tiago',a:'tg',c:5,t:'nt'},{n:'1 Pedro',a:'1pe',c:5,t:'nt'},{n:'2 Pedro',a:'2pe',c:3,t:'nt'},{n:'1 João',a:'1jo',c:5,t:'nt'},{n:'2 João',a:'2jo',c:1,t:'nt'},{n:'3 João',a:'3jo',c:1,t:'nt'},{n:'Judas',a:'jd',c:1,t:'nt'},{n:'Apocalipse',a:'ap',c:22,t:'nt'}];
 function readStorage(key, fallback){ try { const val=localStorage.getItem(key); return val===null?fallback:JSON.parse(val); } catch { return fallback; } }
 function writeStorage(key, value){ try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch { toast('Não foi possível salvar no armazenamento deste aparelho. Verifique o espaço disponível do navegador.'); return false; } }
-function getInstallationId(){ try { let id=localStorage.getItem(DEVICE_KEY); if(!id){id=makeId();localStorage.setItem(DEVICE_KEY,id)} return id; } catch { return 'temporary-'+makeId(); } }
-const installationId = getInstallationId();
 let saved = readStorage(SAVE_KEY, readStorage('palavra-saved-v3', readStorage('palavra-saved-v2', [])));
 if(!Array.isArray(saved)) saved=[];
 const localDay = () => { const p=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()).map(x=>[x.type,x.value])); return `${p.year}-${p.month}-${p.day}`; };
@@ -34,7 +31,7 @@ function saveLocalUsage(n){usedToday=Math.max(0,Math.min(DAILY_LIMIT,Number(n)||
 usedToday=readLocalUsage();
 function toast(message){const el=$('#toast');el.textContent=message;el.hidden=false;clearTimeout(toastHandle);toastHandle=setTimeout(()=>el.hidden=true,4500);}
 function apiUrl(path){return SERVER_BASE ? SERVER_BASE+'/api/'+path.replace(/^\//,'') : BIBLE_API+path.replace(/^\//,'');}
-async function getJson(url, options={}){const ctrl=new AbortController();const timer=setTimeout(()=>ctrl.abort(),18000);try{const r=await fetch(url,{...options,signal:ctrl.signal,headers:{Accept:'application/json',...(options.headers||{})}});let data;try{data=await r.json()}catch{data=null;}if(!r.ok){const msg=data?.error||data?.message||('HTTP '+r.status);const error=new Error(msg);error.status=r.status;error.data=data;throw error}return data;}finally{clearTimeout(timer)}}
+async function getJson(url, options={}){const ctrl=new AbortController();const timer=setTimeout(()=>ctrl.abort(),18000);const target=new URL(url,location.href);const credentials=target.origin===location.origin?'same-origin':'include';try{const r=await fetch(target.href,{...options,credentials,signal:ctrl.signal,headers:{Accept:'application/json',...(options.headers||{})}});let data;try{data=await r.json()}catch{data=null;}if(!r.ok){const msg=data?.error||data?.message||('HTTP '+r.status);const error=new Error(msg);error.status=r.status;error.data=data;throw error}return data;}finally{clearTimeout(timer)}}
 async function fetchBible(path){return getJson(apiUrl(SERVER_BASE?'bible/'+path:path));}
 function go(id){$$('.screen').forEach(s=>s.classList.toggle('active',s.id===id));$$('.nav button').forEach(b=>{const active=b.dataset.view===id;b.classList.toggle('sel',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});if(id==='historyScreen')renderHistory();if(id==='chatScreen')updateConversationControls();}
 $('#start').addEventListener('click',()=>go('chatScreen'));
@@ -66,7 +63,7 @@ function renderCurrentChatFavorites(){const cards=$$('.verse',$('#chat'));cards.
 function normalizeThemeLabel(id){const labels={anxiety:'Ansiedade',strength:'Força',gratitude:'Gratidão',peace:'Paz',hope:'Esperança',sadness:'Tristeza',fear:'Medo',loneliness:'Solidão',forgiveness:'Perdão',patience:'Paciência',love:'Amor',decision:'Decisões',grief:'Luto',family:'Família',other:'Tema não identificado'};return labels[id]||id||'';}
 async function answerMessage(turn,waitingEl){
  if(!SERVER_BASE){throw new Error('SERVER_NOT_CONFIGURED');}
- const context=conversation.slice(0,-1).filter(t=>t&&typeof t.user==='string').slice(-6).map(t=>({user:t.user.slice(0,300),assistant:String(t.reply||'').slice(0,500)}));const payload={installationId,message:turn.user,context};
+ const context=conversation.slice(0,-1).filter(t=>t&&typeof t.user==='string').slice(-4).map(t=>({user:t.user.slice(0,250),assistant:String(t.reply||'').slice(0,350)}));const payload={message:turn.user,context};
  const result=await getJson(SERVER_BASE+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
  if(!result||result.ok!==true)throw new Error(result?.error||'Não foi possível processar a mensagem.');
  if(typeof result.used==='number')saveLocalUsage(result.used);else if(typeof result.remaining==='number')saveLocalUsage(DAILY_LIMIT-result.remaining);
@@ -81,7 +78,7 @@ async function answerMessage(turn,waitingEl){
  syncFavoriteConversation();
 }
 function serverErrorText(e){if(e.message==='SERVER_NOT_CONFIGURED')return 'A conexão segura com a IA ainda não foi configurada. A navegação bíblica e os favoritos funcionam; a classificação por IA e o limite diário seguro precisam do serviço de servidor incluído no pacote.';if(/429|limite diário|limit/i.test(e.message))return 'Você atingiu o limite de 20 mensagens de hoje. Ele será liberado novamente à meia-noite no horário de São Paulo.';if(/Failed to fetch|NetworkError|Load failed|aborted/i.test(e.message))return 'Não consegui alcançar o serviço. Confira a conexão com a internet e tente novamente mais tarde. Nenhum versículo foi inventado.';return 'Não consegui concluir a busca agora. Nenhuma passagem foi apresentada sem confirmação da fonte bíblica.';}
-async function sendMessage(raw){checkDailyRollover();const text=String(raw||'').trim();if(!text||pending)return;if(usedToday>=DAILY_LIMIT){toast('Você atingiu o limite diário de 20 mensagens.');return;}
+async function sendMessage(raw){checkDailyRollover();const text=String(raw??'').normalize('NFC').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g,'').trim();if(!text||pending)return;if(text.length>700){toast('Sua mensagem deve ter no máximo 700 caracteres.');return;}if(usedToday>=DAILY_LIMIT){toast('Você atingiu o limite diário de 20 mensagens.');return;}
  pending=true;$('#input').value='';$('#input').style.height='auto';appendBubble(text,'user');const turn={user:text,theme:null,themeLabel:null,reply:null,connection:null,verse:null,ref:null,note:null};conversation.push(turn);const waiting=appendBubble('Estou pensando com atenção no que você compartilhou…','assistant');updateConversationControls();
  try{await answerMessage(turn,waiting);}catch(e){waiting.remove();if(e.status===429||e.data?.code==='DAILY_LIMIT_REACHED')saveLocalUsage(DAILY_LIMIT);turn.note=serverErrorText(e);appendBubble(turn.note,'assistant');syncFavoriteConversation();if(e.message!=='SERVER_NOT_CONFIGURED'&&e.status!==429){try{await refreshUsage()}catch{}}}
  finally{pending=false;if(pending===false&&usedToday>=DAILY_LIMIT){$('#input').placeholder='Limite diário atingido. Volte amanhã.';}saveDraft();updateConversationControls();$('#input').focus({preventScroll:true});scrollChatBottom();}}
@@ -89,8 +86,8 @@ function scrollChatBottom(){const main=$('#chat');if(main)main.scrollIntoView({b
 $('#form').addEventListener('submit',e=>{e.preventDefault();sendMessage($('#input').value)});
 $('#input').addEventListener('input',e=>{e.target.style.height='auto';e.target.style.height=Math.min(e.target.scrollHeight,130)+'px';});
 $$('.chip').forEach(b=>b.addEventListener('click',()=>sendMessage(b.textContent)));
-async function checkService(){const status=$('#serviceStatus');if(!SERVER_BASE){status.textContent='IA não conectada';status.classList.remove('online');status.classList.add('offline');return;}try{const d=await getJson(SERVER_BASE+'/api/health');if(d.ok&&d.aiConfigured&&d.databaseConfigured){status.textContent='Serviço conectado';status.classList.remove('offline');status.classList.add('online');}else{status.textContent='Configuração pendente';status.classList.remove('online');status.classList.add('offline');}}catch{status.textContent='Sem conexão com o serviço';status.classList.remove('online');status.classList.add('offline');}}
-async function refreshUsage(){if(!SERVER_BASE){updateQuota();return;}const d=await getJson(SERVER_BASE+'/api/usage?installationId='+encodeURIComponent(installationId));if(typeof d.used==='number')saveLocalUsage(d.used);}
+async function checkService(){const status=$('#serviceStatus');if(!SERVER_BASE){status.textContent='IA não conectada';status.classList.remove('online');status.classList.add('offline');return;}try{const d=await getJson(SERVER_BASE+'/api/health');if(d.ok&&d.ready){status.textContent='Serviço conectado';status.classList.remove('offline');status.classList.add('online');}else{status.textContent='Configuração pendente';status.classList.remove('online');status.classList.add('offline');}}catch{status.textContent='Sem conexão com o serviço';status.classList.remove('online');status.classList.add('offline');}}
+async function refreshUsage(){if(!SERVER_BASE){updateQuota();return;}const d=await getJson(SERVER_BASE+'/api/usage');if(typeof d.used==='number')saveLocalUsage(d.used);}
 function checkDailyRollover(){const today=localDay();if(today!==usageDay){usageDay=today;saveLocalUsage(0);$('#input').placeholder='Escreva sua mensagem...';refreshUsage().catch(()=>{});}}
 setInterval(checkDailyRollover,60000);
 const bibleAllBooks = bibleBooks.map(b=>({name:b.n,abbr:b.a,chapters:b.c,testament:b.t}));
