@@ -9,7 +9,7 @@ on:
       - deploy/palavra-viva-v2
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   audit:
@@ -20,16 +20,18 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Create reproducible dependency lock
-        run: npm install --prefix _audit_source --package-lock-only --ignore-scripts --no-audit
       - name: Install exact locked dependency versions
         run: npm ci --prefix _audit_source --ignore-scripts
       - name: Check for known vulnerable dependencies
         run: npm audit --prefix _audit_source --omit=dev --audit-level=high
+      - name: Build the deployable app from audited sources
+        run: npm run build
       - name: Check JavaScript syntax
         run: |
           node --check _audit_source/server.cjs
           node --check _audit_source/public/app.js
+          node --check runtime-app/server.cjs
+          node --check runtime-app/public/app.js
       - name: Run security regression tests
         run: npm test --prefix _audit_source
       - name: Check public files for server-only secrets
@@ -39,16 +41,4 @@ jobs:
           if grep -RIE 'GEMINI_API_KEY|DATABASE_URL|ID_SALT|x-goog-api-key|AIza[0-9A-Za-z_-]{20,}|-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----' _audit_source/public; then
             echo "Potential server secret found in public files"
             exit 1
-          fi
-      - name: Commit dependency lock if it changed
-        if: github.event_name == 'push'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add _audit_source/package-lock.json
-          if git diff --cached --quiet; then
-            echo "Lock file already up to date"
-          else
-            git commit -m "build: lock audited production dependencies"
-            git push origin HEAD:security-hardening
           fi
