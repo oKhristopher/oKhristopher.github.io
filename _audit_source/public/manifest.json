@@ -1,10 +1,10 @@
 {
-  "id": "./",
+  "id": "/",
   "name": "Palavra Viva — Reflexão bíblica",
   "short_name": "Palavra Viva",
   "description": "Um espaço de reflexão para encontrar passagens bíblicas relacionadas ao que você está vivendo.",
-  "start_url": "./index.html",
-  "scope": "./",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#211813",
@@ -15,10 +15,16 @@
   ],
   "icons": [
     {
-      "src": "./icons/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "src": "/icons/palavra-viva-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/palavra-viva-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

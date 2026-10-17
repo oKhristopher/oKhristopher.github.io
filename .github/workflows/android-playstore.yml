@@ -1,0 +1,89 @@
+name: Build Palavra Viva Android App Bundle
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - deploy/palavra-viva-v2
+    paths:
+      - "package.json"
+      - "_audit_source/**"
+      - "android-playstore/**"
+      - ".github/workflows/android-playstore.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Configure Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Configure Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Configure Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Install Android 16 SDK
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools"
+      - name: Build and test the PWA backend
+        run: npm run build
+      - name: Wait for deployed PWA manifest and icons
+        shell: bash
+        run: |
+          set -euo pipefail
+          ready=false
+          for attempt in $(seq 1 36); do
+            if curl -fsSL "https://palavra-viva-mybr.onrender.com/manifest.json" -o /tmp/live-manifest.json \
+              && grep -q 'palavra-viva-512.png' /tmp/live-manifest.json \
+              && curl -fsSL "https://palavra-viva-mybr.onrender.com/icons/palavra-viva-512.png" -o /tmp/live-icon.png \
+              && file /tmp/live-icon.png | grep -q 'PNG image data'; then
+              ready=true
+              break
+            fi
+            echo "Aguardando a implantação do manifesto e dos ícones (tentativa \${attempt}/36)..."
+            sleep 10
+          done
+          test "$ready" = true
+      - name: Install Bubblewrap
+        run: npm install --global @bubblewrap/cli
+      - name: Generate project from TWA manifest
+        working-directory: android-playstore
+        run: bubblewrap update --skipVersionUpgrade --manifest=twa-manifest.json
+      - name: Generate one-time upload signing key
+        working-directory: android-playstore
+        shell: bash
+        run: |
+          set -euo pipefail
+          SIGNING_PASSWORD="$(openssl rand -hex 32)"
+          echo "BUBBLEWRAP_KEYSTORE_PASSWORD=\${SIGNING_PASSWORD}" >> "$GITHUB_ENV"
+          echo "BUBBLEWRAP_KEY_PASSWORD=\${SIGNING_PASSWORD}" >> "$GITHUB_ENV"
+          keytool -genkeypair -v \
+            -keystore ./android.keystore \
+            -storetype JKS \
+            -alias palavraviva \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -storepass "$SIGNING_PASSWORD" -keypass "$SIGNING_PASSWORD" \
+            -dname "CN=Palavra Viva, OU=Android, O=Palavra Viva, L=Araraquara, ST=SP, C=BR"
+      - name: Build signed Android App Bundle
+        working-directory: android-playstore
+        run: bubblewrap build --manifest=twa-manifest.json --signingKeyPath=./android.keystore --signingKeyAlias=palavraviva
+      - name: Publish build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: palavra-viva-android-release
+          path: |
+            android-playstore/app-release-bundle.aab
+            android-playstore/app-release-signed.apk
+          if-no-files-found: error
+          retention-days: 14
