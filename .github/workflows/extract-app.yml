@@ -1,0 +1,68 @@
+name: Temporary app source audit
+
+on:
+  push:
+    branches:
+      - security-hardening
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: security-hardening
+      - name: Unpack app source for security audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat palavra-viva.part* | base64 -d > /tmp/palavra-viva.zip
+          mkdir -p /tmp/pv-runtime
+          unzip -oq /tmp/palavra-viva.zip -d /tmp/pv-runtime
+          if compgen -G 'pv-gz-part*.b64' > /dev/null; then
+            cat pv-gz-part*.b64 | base64 -d | gzip -d > /tmp/apply-palavra-viva-patch.cjs
+            node /tmp/apply-palavra-viva-patch.cjs
+          fi
+          if compgen -G 'pv-convo-part*.b64' > /dev/null; then
+            cat pv-convo-part*.b64 | base64 -d | gzip -d > /tmp/enhance-palavra-viva-conversation.cjs
+            node /tmp/enhance-palavra-viva-conversation.cjs
+          fi
+          rm -rf _audit_source
+          mkdir -p _audit_source/public
+          cp /tmp/pv-runtime/server.cjs _audit_source/ 2>/dev/null || true
+          cp /tmp/pv-runtime/package.json _audit_source/ 2>/dev/null || true
+          for f in index.html app.js styles.css sw.js manifest.json; do
+            cp "/tmp/pv-runtime/public/$f" "_audit_source/public/$f" 2>/dev/null || true
+          done
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          for p in Path('_audit_source').rglob('*'):
+              if not p.is_file():
+                  continue
+              try:
+                  s = p.read_text()
+              except UnicodeDecodeError:
+                  p.unlink()
+                  continue
+              s = re.sub(r'(?i)((?:api[_-]?key|secret|password|passwd|token|private[_-]?key|authorization|client[_-]?secret)\\s*[:=]\\s*[\\'"])[^\\'"]+([\\'"])', r'\\1[REDACTED]\\2', s)
+              s = re.sub(r'(?i)(Bearer\\s+)[A-Za-z0-9._~+/=-]{16,}', r'\\1[REDACTED]', s)
+              p.write_text(s)
+          PY
+          echo "Extracted app source file list:"
+          find _audit_source -type f -print
+      - name: Commit audit sources
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add _audit_source
+          if git diff --cached --quiet; then
+            echo "No extracted files to commit"
+          else
+            git commit -m "chore: expose redacted app source for security audit"
+            git push origin security-hardening
+          fi
