@@ -150,13 +150,13 @@ function sessionId(req, res) {
       && parsedExpiry > nowSeconds
       && parsedExpiry <= nowSeconds + SESSION_MAX_AGE + 60
       && /^[a-f0-9]{64}$/i.test(signature || '')) {
-    const expected = crypto.createHmac('sha256', salt).update(\`\${id}.\${parsedExpiry}\`).digest();
+    const expected = crypto.createHmac('sha256', salt).update(id + '.' + parsedExpiry).digest();
     const actual = Buffer.from(signature, 'hex');
     valid = actual.length === expected.length && crypto.timingSafeEqual(expected, actual);
   }
   const value = valid ? id : crypto.randomBytes(32).toString('base64url');
   const expiresAt = valid ? parsedExpiry : nowSeconds + SESSION_MAX_AGE;
-  const signed = crypto.createHmac('sha256', salt).update(\`\${value}.\${expiresAt}\`).digest('hex');
+  const signed = crypto.createHmac('sha256', salt).update(value + '.' + expiresAt).digest('hex');
   let crossOriginAllowed = false;
   try {
     crossOriginAllowed = Boolean(req.headers.origin)
