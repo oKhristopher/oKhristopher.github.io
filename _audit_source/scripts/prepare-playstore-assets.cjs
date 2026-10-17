@@ -47,8 +47,8 @@ fs.writeFileSync(path.join(wellKnown,'assetlinks.json'),JSON.stringify(statement
 const workerPath=path.join(publicDir,'sw.js');
 if(fs.existsSync(workerPath)){
   let worker=fs.readFileSync(workerPath,'utf8');
-  worker=worker.replace("const CACHE_NAME = 'palavra-shell-v4';", "const CACHE_NAME = 'palavra-shell-v5';");
-  worker=worker.replace("const SHELL = ['./','./index.html','./styles.css','./app.js','./config.js','./manifest.json','./icons/icon.svg'];", "const SHELL = ['./','./index.html','./styles.css','./app.js','./config.js','./manifest.json','./icons/icon.svg','./icons/palavra-viva-512.png','./icons/palavra-viva-maskable-512.png','./privacy.html'];");
+  worker=worker.replace("const APP_VERSION = '1.3.0';const CACHE_NAME='palavra-shell-'+APP_VERSION;", "const APP_VERSION = '1.3.0';const CACHE_NAME='palavra-shell-v5';");
+  worker=worker.replace("const SHELL=['./','./index.html','./styles.css?v='+APP_VERSION,'./app.js?v='+APP_VERSION,'./config.js?v='+APP_VERSION,'./manifest.json','./icons/icon.svg','./privacidade.html'];", "const SHELL=['./','./index.html','./styles.css?v='+APP_VERSION,'./app.js?v='+APP_VERSION,'./config.js?v='+APP_VERSION,'./manifest.json','./icons/icon.svg','./icons/palavra-viva-512.png','./icons/palavra-viva-maskable-512.png','./privacy.html'];");
   fs.writeFileSync(workerPath,worker);
 }
 
