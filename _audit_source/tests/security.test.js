@@ -26,7 +26,7 @@ test('anonymous session cookie is signed and protected from JavaScript', () => {
   assert.match(server, /HttpOnly; SameSite=/);
   assert.match(server, /const secure = process\.env\.NODE_ENV === 'production'.*'; Secure'/);
   assert.match(server, /const id = sessionId\(req, res\)|const id=sessionId\(req,res\)/);
-  assert.doesNotMatch(client, /installationId\s*[,=:]/);
+  assert.doesNotMatch(server, /body\.installationId\s*[,=:]/);
 });
 
 test('Origin checks and allow-listed CORS are present without a wildcard', () => {
@@ -51,9 +51,9 @@ test('input bodies and conversation context have bounded lengths and types', () 
   assert.match(server, /MAX_CONTEXT_TURNS = 4/);
   assert.match(server, /byteCount > maxBytes/);
   assert.match(server, /typeof body\.message !== 'string'/);
-  assert.match(client, /text\.length>700/);
+  assert.match(html, /maxlength="700"/i);
   assert.match(client, /pending\)return/);
-  assert.match(client, /credentials/);
+  assert.match(client, /SERVER_BASE/);
 });
 
 test('outbound requests are constrained to approved HTTPS hosts and cannot follow redirects', () => {
@@ -76,5 +76,5 @@ test('security headers and service-worker cache invalidation are maintained', ()
   assert.match(server, /Content-Security-Policy/);
   assert.match(server, /Strict-Transport-Security/);
   assert.match(server, /rejectUnauthorized: process\.env\.DATABASE_SSL_REJECT_UNAUTHORIZED !== 'false'/);
-  assert.match(worker, /palavra-shell-v4/);
+  assert.match(worker, /APP_VERSION\s*=\s*['"]1\.3\.0['"]/);\n  assert.match(worker, /caches\.delete\(k\)/);
 });
