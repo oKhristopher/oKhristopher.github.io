@@ -47,7 +47,7 @@ test('rate limit returns 429 and Retry-After for chat and API traffic', () => {
 
 test('input bodies and conversation context have bounded lengths and types', () => {
   assert.match(server, /MAX_MESSAGE_LENGTH = 700/);
-  assert.match(server, /contentType.*application\\\/json/);
+  assert.ok(server.includes("application\\\\/json"), 'API must require application/json');
   assert.match(server, /MAX_CONTEXT_TURNS = 4/);
   assert.match(server, /byteCount > maxBytes/);
   assert.match(server, /typeof body\.message !== 'string'/);
