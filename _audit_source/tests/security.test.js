@@ -76,5 +76,6 @@ test('security headers and service-worker cache invalidation are maintained', ()
   assert.match(server, /Content-Security-Policy/);
   assert.match(server, /Strict-Transport-Security/);
   assert.match(server, /rejectUnauthorized: process\.env\.DATABASE_SSL_REJECT_UNAUTHORIZED !== 'false'/);
-  assert.match(worker, /APP_VERSION\s*=\s*['"]1\.3\.0['"]/);
+  assert.match(worker, /const CACHE_NAME\s*=\s*['"]palavra-shell-v\d+['"]/);
+  assert.match(worker, /keys\.filter\(k=>k!==CACHE_NAME\)/);
 });

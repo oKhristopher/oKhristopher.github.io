@@ -44,4 +44,12 @@ const wellKnown=path.join(publicDir,'.well-known');fs.mkdirSync(wellKnown,{recur
 const fingerprint=String(process.env.ANDROID_APP_SHA256_FINGERPRINT||'').toUpperCase().replace(/[^A-F0-9]/g,'');
 const statements=fingerprint.length===64?[{relation:['delegate_permission/common.handle_all_urls'],target:{namespace:'android_app',package_name:'com.khristopher.palavraviva',sha256_cert_fingerprints:[fingerprint.match(/.{2}/g).join(':')]}}]:[];
 fs.writeFileSync(path.join(wellKnown,'assetlinks.json'),JSON.stringify(statements,null,2)+'\n');
+const workerPath=path.join(publicDir,'sw.js');
+if(fs.existsSync(workerPath)){
+  let worker=fs.readFileSync(workerPath,'utf8');
+  worker=worker.replace("const CACHE_NAME = 'palavra-shell-v4';", "const CACHE_NAME = 'palavra-shell-v5';");
+  worker=worker.replace("const SHELL = ['./','./index.html','./styles.css','./app.js','./config.js','./manifest.json','./icons/icon.svg'];", "const SHELL = ['./','./index.html','./styles.css','./app.js','./config.js','./manifest.json','./icons/icon.svg','./icons/palavra-viva-512.png','./icons/palavra-viva-maskable-512.png','./privacy.html'];");
+  fs.writeFileSync(workerPath,worker);
+}
+
 console.log('Manifesto, ícones, política de privacidade e Digital Asset Links preparados.');

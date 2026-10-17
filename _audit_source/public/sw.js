@@ -1,6 +1,6 @@
 'use strict';
-const CACHE_NAME = 'palavra-shell-v4';
-const SHELL = ['./','./index.html','./styles.css','./app.js','./config.js','./manifest.json','./icons/icon.svg'];
+const CACHE_NAME = 'palavra-shell-v5';
+const SHELL = ['./','./index.html','./styles.css','./app.js','./config.js','./manifest.json','./icons/icon.svg','./icons/palavra-viva-512.png','./icons/palavra-viva-maskable-512.png','./privacy.html'];
 self.addEventListener('install', event => { event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL)).then(()=>self.skipWaiting())); });
 self.addEventListener('activate', event => { event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)))).then(()=>self.clients.claim())); });
 self.addEventListener('fetch', event => {
