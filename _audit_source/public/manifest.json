@@ -1,0 +1,24 @@
+{
+  "id": "./",
+  "name": "Palavra Viva — Reflexão bíblica",
+  "short_name": "Palavra Viva",
+  "description": "Um espaço de reflexão para encontrar passagens bíblicas relacionadas ao que você está vivendo.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#211813",
+  "theme_color": "#211813",
+  "categories": [
+    "lifestyle",
+    "education"
+  ],
+  "icons": [
+    {
+      "src": "./icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
