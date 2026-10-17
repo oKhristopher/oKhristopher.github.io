@@ -24,7 +24,7 @@ test('anonymous session cookie is signed and protected from JavaScript', () => {
   assert.match(server, /createHmac\('sha256', salt\)/);
   assert.match(server, /timingSafeEqual/);
   assert.match(server, /HttpOnly; SameSite=/);
-  assert.match(server, /SESSION_COOKIE.*Secure/);
+  assert.match(server, /const secure = process\.env\.NODE_ENV === 'production'.*'; Secure'/);
   assert.match(server, /const id = sessionId\(req, res\)|const id=sessionId\(req,res\)/);
   assert.doesNotMatch(client, /installationId\s*[,=:]/);
 });
