@@ -39,8 +39,10 @@ jobs:
           if [ -z "$SDKMANAGER" ]; then echo "sdkmanager was not found under ANDROID_HOME" >&2; exit 1; fi
           echo "$(dirname "$SDKMANAGER")" >> "$GITHUB_PATH"
           echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
+          mkdir -p "$ANDROID_HOME/bin"
+          ln -sf "$SDKMANAGER" "$ANDROID_HOME/bin/sdkmanager"
           yes | "$SDKMANAGER" --sdk_root="$ANDROID_HOME" --licenses >/dev/null || true
-          "$SDKMANAGER" --sdk_root="$ANDROID_HOME" "platforms;android-36" "build-tools;36.0.0" "platform-tools"
+          "$SDKMANAGER" --sdk_root="$ANDROID_HOME" "platforms;android-36" "build-tools;36.1.0" "platform-tools"
       - name: Build and test the PWA backend
         run: npm run build
       - name: Wait for deployed PWA manifest and icons
@@ -78,8 +80,8 @@ jobs:
         run: |
           set -euo pipefail
           SIGNING_PASSWORD="$(openssl rand -hex 32)"
-          echo "BUBBLEWRAP_KEYSTORE_PASSWORD=\${SIGNING_PASSWORD}" >> "$GITHUB_ENV"
-          echo "BUBBLEWRAP_KEY_PASSWORD=\${SIGNING_PASSWORD}" >> "$GITHUB_ENV"
+          echo "BUBBLEWRAP_KEYSTORE_PASSWORD=${SIGNING_PASSWORD}" >> "$GITHUB_ENV"
+          echo "BUBBLEWRAP_KEY_PASSWORD=${SIGNING_PASSWORD}" >> "$GITHUB_ENV"
           keytool -genkeypair -v \
             -keystore ./android.keystore \
             -storetype JKS \
