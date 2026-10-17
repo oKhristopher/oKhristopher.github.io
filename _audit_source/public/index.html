@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#211813">
+  <meta name="description" content="Um espaço de reflexão para encontrar passagens bíblicas relacionadas ao que você está vivendo.">
+  <meta name="color-scheme" content="dark light">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Palavra Viva">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <title>Palavra Viva · Reflexão bíblica</title>
+</head>
+<body>
+<div class="shell">
+  <header class="top">
+    <div class="seal" aria-hidden="true">✦</div>
+    <div class="brand-wrap"><div class="brand">Palavra Viva</div><div class="sub">um espaço de reflexão</div></div>
+    <button class="install-head" id="installApp" hidden>Instalar</button>
+    <button class="theme" id="theme" aria-label="Alternar tema claro e escuro" title="Alternar tema">☼</button>
+  </header>
+  <main>
+    <section class="screen active home" id="inicio" aria-labelledby="homeTitle">
+      <div class="ornament" aria-hidden="true">✦ ─ ✦</div><div class="eyebrow">UM MOMENTO COM A PALAVRA</div>
+      <h1 id="homeTitle">Um lugar para<br><em>se encontrar.</em></h1>
+      <p>Compartilhe o que está no seu coração e encontre passagens bíblicas para acompanhar seu momento.</p>
+      <button class="primary" id="start">Vamos conversar?</button>
+      <button class="install-home" id="installHome" hidden>＋ Instalar no celular</button>
+      <p class="install-hint" id="installHint" hidden></p>
+    </section>
+    <section class="screen" id="chatScreen" aria-labelledby="chatTitle">
+      <div class="eyebrow">CONVERSA COM A PALAVRA</div><h2 id="chatTitle">O que está no<br><em>seu coração?</em></h2>
+      <p class="intro">Pode conversar comigo sobre o que você está vivendo. Vou te ouvir, responder com atenção e, quando fizer sentido, compartilhar uma passagem bíblica relacionada.</p>
+      <div class="quota-row"><span id="serviceStatus" class="status-pill">Verificando conexão…</span><span id="quota" class="quota-pill">20 mensagens por dia</span></div>
+      <div class="chat-toolbar"><button class="secondarybtn" id="favoriteConversation" disabled>♡ Favoritar conversa</button><button class="secondarybtn" id="newConversation">＋ Nova conversa</button></div>
+      <div class="chips" aria-label="Sugestões de tema"><button class="chip">Estou ansioso</button><button class="chip">Preciso de força</button><button class="chip">Quero agradecer</button><button class="chip">Preciso de paz</button></div>
+      <div class="chat" id="chat" aria-live="polite"><div class="msg"><span class="avatar" aria-hidden="true">✦</span><div class="bubble">Estou aqui para ajudar você a encontrar palavras da Bíblia para este momento. O que está no seu coração?</div></div></div>
+      <form class="composer" id="form"><textarea id="input" rows="2" maxlength="700" placeholder="Escreva sua mensagem..." aria-label="Sua mensagem" autocomplete="off"></textarea><button class="send" id="sendButton" aria-label="Enviar mensagem" type="submit">↑</button></form>
+      <p class="note">A Gemini interpreta sua mensagem e responde com empatia. Em seguida, o app consulta uma fonte bíblica para mostrar uma passagem relacionada; o texto do versículo não é gerado pela IA. Suas conversas e favoritos permanecem neste aparelho; a mensagem atual e até quatro mensagens anteriores podem ser enviadas ao serviço para classificação. Evite incluir senhas, documentos ou outros dados que identifiquem você.</p>
+    </section>
+    <section class="screen" id="bibleScreen" aria-labelledby="bibleTitle">
+      <div class="eyebrow">BIBLIOTECA BÍBLICA</div><h2 id="bibleTitle">A Palavra,<br><em>livro por livro.</em></h2>
+      <p class="intro">Explore os 66 livros. O texto dos capítulos é carregado da fonte bíblica quando houver conexão.</p>
+      <div id="testamentChoices">
+        <button class="testament" data-testament="ot"><span class="icon" aria-hidden="true">Ⅰ</span><span><strong>Antigo Testamento</strong><small>Criação, história, poesia e profecia</small></span><span class="chevron">›</span></button>
+        <button class="testament" data-testament="nt"><span class="icon" aria-hidden="true">Ⅱ</span><span><strong>Novo Testamento</strong><small>Evangelhos, cartas e esperança</small></span><span class="chevron">›</span></button>
+      </div>
+      <div id="books"></div>
+      <p class="note">Os textos bíblicos são exibidos apenas após serem recebidos da fonte. Se a fonte estiver indisponível, o app informa o erro em vez de completar o texto por conta própria.</p>
+    </section>
+    <section class="screen" id="historyScreen" aria-labelledby="historyTitle">
+      <div class="eyebrow">SUA JORNADA</div><h2 id="historyTitle">Seu caminho<br><em>pela Palavra.</em></h2>
+      <p class="intro">Conversas que você favoritou e mensagens bíblicas que deseja guardar.</p>
+      <input id="historySearch" class="search-input" type="search" placeholder="Buscar nos favoritos..." aria-label="Buscar no histórico">
+      <div class="history-filters" role="group" aria-label="Filtrar histórico"><button class="filter-btn active" data-filter="all">Tudo</button><button class="filter-btn" data-filter="chat">Conversas</button><button class="filter-btn" data-filter="verse">Versículos</button></div>
+      <div id="history"><div class="empty">♡<br><br>Suas conversas salvas e mensagens favoritas aparecerão aqui.</div></div>
+    </section>
+  </main>
+  <nav class="nav" aria-label="Navegação principal">
+    <button class="sel" data-view="inicio" aria-label="Início"><span>⌂</span>Início</button>
+    <button data-view="chatScreen" aria-label="Conversa"><span>✧</span>Conversa</button>
+    <button data-view="bibleScreen" aria-label="Bíblia"><span>▤</span>Bíblia</button>
+    <button data-view="historyScreen" aria-label="Histórico"><span>♡</span>Histórico</button>
+  </nav>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<div id="iosInstallHelp" class="modal-backdrop" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="installTitle"><button class="modal-close" id="closeInstallHelp" aria-label="Fechar">×</button><div class="eyebrow">INSTALAÇÃO NO IPHONE</div><h3 id="installTitle">Adicione à Tela de Início</h3><ol><li>Abra este app no <strong>Safari</strong>.</li><li>Toque em <strong>Compartilhar</strong> (ícone de seta para cima).</li><li>Escolha <strong>Adicionar à Tela de Início</strong> e confirme.</li></ol><p class="note">A instalação requer que o app esteja publicado em um endereço HTTPS.</p><button class="primary" id="closeInstallHelp2">Entendi</button></div></div>
+<script src="./config.js"></script><script src="./app.js" defer></script>
+</body></html>
