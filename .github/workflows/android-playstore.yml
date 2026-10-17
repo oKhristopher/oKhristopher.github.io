@@ -29,7 +29,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "21"
+          java-version: "17"
       - name: Configure Android SDK
         shell: bash
         run: |
@@ -62,6 +62,13 @@ jobs:
           test "$ready" = true
       - name: Install Bubblewrap
         run: npm install --global @bubblewrap/cli
+      - name: Configure Bubblewrap JDK and SDK paths
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.bubblewrap"
+          printf '{"jdkPath":"%s","androidSdkPath":"%s"}\n' "$JAVA_HOME" "$ANDROID_HOME" > "$HOME/.bubblewrap/config.json"
+          cat "$HOME/.bubblewrap/config.json"
       - name: Generate project from TWA manifest
         working-directory: android-playstore
         run: bubblewrap update --skipVersionUpgrade --manifest=twa-manifest.json
