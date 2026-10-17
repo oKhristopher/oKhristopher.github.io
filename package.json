@@ -1,0 +1,10 @@
+{
+  "name": "palavra-viva-render-bootstrap",
+  "version": "1.0.0",
+  "private": true,
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "cat palavra-viva.part* | base64 -d > palavra-viva-bundle.zip && mkdir -p runtime-app && unzip -oq palavra-viva-bundle.zip -d runtime-app && cd runtime-app && npm install --omit=dev",
+    "start": "cd runtime-app && npm start"
+  }
+}
