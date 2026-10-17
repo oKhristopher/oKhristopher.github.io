@@ -18,7 +18,7 @@ async function availablePort() {
 
 test('HTTP server sets safe headers and rejects untrusted browser origins', async t => {
   const port = await availablePort();
-  const base = \`http://127.0.0.1:\${port}\`;
+  const base = 'http://127.0.0.1:' + port;
   const serverPath = fileURLToPath(new URL('../server.cjs', import.meta.url));
   const child = spawn(process.execPath, [serverPath], {
     env: {
