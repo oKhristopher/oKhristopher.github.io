@@ -7,6 +7,7 @@
 - Manifesto PWA: https://palavra-viva-mybr.onrender.com/manifest.json
 - Política de privacidade: https://palavra-viva-mybr.onrender.com/privacy.html
 - SDK alvo: Android 16 / API 36 (gerado pelo Bubblewrap atual)
+- Android mínimo: 7.0 (API 24), exigido pela versão atual da biblioteca TWA
 
 ## Texto sugerido para a ficha da loja
 

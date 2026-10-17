@@ -80,6 +80,7 @@ jobs:
         run: |
           set -euo pipefail
           SIGNING_PASSWORD="$(openssl rand -hex 32)"
+          echo "::add-mask::${SIGNING_PASSWORD}"
           echo "BUBBLEWRAP_KEYSTORE_PASSWORD=${SIGNING_PASSWORD}" >> "$GITHUB_ENV"
           echo "BUBBLEWRAP_KEY_PASSWORD=${SIGNING_PASSWORD}" >> "$GITHUB_ENV"
           keytool -genkeypair -v \

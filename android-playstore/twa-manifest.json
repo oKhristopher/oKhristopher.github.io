@@ -30,7 +30,7 @@
   "features": {},
   "enableSiteSettingsShortcut": false,
   "orientation": "portrait",
-  "minSdkVersion": 23,
+  "minSdkVersion": 24,
   "fullScopeUrl": "https://palavra-viva-mybr.onrender.com/",
   "additionalTrustedOrigins": [],
   "fingerprints": []
