@@ -124,7 +124,7 @@ async function takePersistentRateLimit(key, limit, windowSeconds, nowMs = Date.n
   const keyHash = crypto.createHmac('sha256', salt).update(String(key)).digest('hex');
   const windowStart = Math.floor(Math.floor(nowMs / 1000) / windowSeconds) * windowSeconds;
   const sql = 'INSERT INTO request_rate_limits (key_hash, window_start, window_seconds, hit_count, expires_at)\n'
-    + 'VALUES ($1, $2, $3, 1, to_timestamp($2 + $3))\n'
+    + 'VALUES ($1, $2, $3, 1, to_timestamp(($2::bigint + $3::integer)::double precision))\n'
     + 'ON CONFLICT (key_hash, window_start, window_seconds) DO UPDATE\n'
     + 'SET hit_count = request_rate_limits.hit_count + 1\n'
     + 'WHERE request_rate_limits.hit_count < $4\n'
