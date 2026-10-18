@@ -15,6 +15,7 @@ test('daily quota message is shown only for the explicit daily-limit response', 
 test('quota refresh runs after chat errors and when returning to the app', () => {
   assert.match(client, /try\{await refreshUsage\(\)\}catch\{\}/);
   assert.match(client, /function syncUsageOnReturn\(\)/);
+  assert.match(client, /checkService\(\)\.catch\(\(\) => \{\}\)/);
   assert.match(client, /addEventListener\(['"]focus['"],\s*syncUsageOnReturn/);
   assert.match(client, /addEventListener\(['"]visibilitychange['"]/);
 });
