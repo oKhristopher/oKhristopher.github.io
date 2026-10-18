@@ -30,7 +30,7 @@ async function main() {
   const code = e?.data?.code;
   if (code === 'DAILY_LIMIT_REACHED') return 'Você usou as 20 mensagens disponíveis hoje. O limite será renovado à meia-noite, no horário de São Paulo.';
   if (e?.status === 429 || code === 'RATE_LIMITED') return 'Você enviou mensagens em sequência. Aguarde um pouco e tente novamente; esse aviso não significa que seu limite diário acabou.';
-  if (code === 'RATE_LIMIT_UNAVAILABLE' || code === 'RATE_LIMIT_UNAVAILABLE') return 'Não consegui verificar o limite agora. Confira a conexão e tente novamente em instantes.';
+  if (code === 'RATE_LIMIT_UNAVAILABLE') return 'Não consegui verificar o limite agora. Confira a conexão e tente novamente em instantes.';
   if (e.message === 'SERVER_NOT_CONFIGURED') return 'A conexão segura com a IA ainda não foi configurada. A navegação bíblica e os favoritos continuam disponíveis.';
   if (/Failed to fetch|NetworkError|Load failed|aborted/i.test(e.message)) return 'Não consegui alcançar o serviço. Confira a conexão com a internet e tente novamente mais tarde. Nenhum versículo foi inventado.';
   return 'Não consegui concluir a busca agora. Nenhuma passagem foi apresentada sem confirmação da fonte bíblica.';
@@ -65,6 +65,7 @@ function syncUsageOnReturn(){
   if (Date.now() - lastUsageSyncAt < 5000) return;
   lastUsageSyncAt = Date.now();
   refreshUsage().catch(() => {});
+  checkService().catch(() => {});
 }
 window.addEventListener('focus', syncUsageOnReturn, { passive: true });
 document.addEventListener('visibilitychange', () => { if (!document.hidden) syncUsageOnReturn(); });
