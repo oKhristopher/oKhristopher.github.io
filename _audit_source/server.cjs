@@ -225,6 +225,27 @@ async function initDatabase() {
     expires_at TIMESTAMPTZ NOT NULL,
     PRIMARY KEY (key_hash, window_start, window_seconds)
   )`);
+
+  // Repair older rate-limit table layouts before dependent queries run.
+  await pool.query('ALTER TABLE request_rate_limits ADD COLUMN IF NOT EXISTS key_hash CHAR(64)');
+  await pool.query('ALTER TABLE request_rate_limits ADD COLUMN IF NOT EXISTS window_start BIGINT');
+  await pool.query('ALTER TABLE request_rate_limits ADD COLUMN IF NOT EXISTS window_seconds INTEGER');
+  await pool.query('ALTER TABLE request_rate_limits ADD COLUMN IF NOT EXISTS hit_count INTEGER NOT NULL DEFAULT 0');
+  await pool.query('ALTER TABLE request_rate_limits ADD COLUMN IF NOT EXISTS expires_at TIMESTAMPTZ DEFAULT NOW()');
+
+  // If a previous schema lacked the composite key, retain the largest observed count per window.
+  await pool.query(`WITH ranked AS (
+    SELECT ctid, ROW_NUMBER() OVER (
+      PARTITION BY key_hash, window_start, window_seconds
+      ORDER BY hit_count DESC, expires_at DESC NULLS LAST, ctid DESC
+    ) AS row_number
+    FROM request_rate_limits
+    WHERE key_hash IS NOT NULL AND window_start IS NOT NULL AND window_seconds IS NOT NULL
+  )
+  DELETE FROM request_rate_limits target
+  USING ranked
+  WHERE target.ctid = ranked.ctid AND ranked.row_number > 1`);
+  await pool.query('CREATE UNIQUE INDEX IF NOT EXISTS idx_request_rate_limits_identity ON request_rate_limits (key_hash, window_start, window_seconds)');
   await pool.query('CREATE INDEX IF NOT EXISTS idx_request_rate_limits_expiry ON request_rate_limits (expires_at)');
   await pool.query('DELETE FROM request_rate_limits WHERE expires_at < NOW()');
   await pool.query('DELETE FROM daily_usage WHERE usage_date < $1::date - 30', [brazilDate()]);
@@ -386,7 +407,10 @@ async function api(req,res,url) {
     }
     let persistentLimit;
     try { persistentLimit = await persistentChatLimit(req, id); }
-    catch { return json(res, 503, { error: 'Limitador persistente indisponível.', code: 'RATE_LIMIT_UNAVAILABLE' }); }
+    catch (error) {
+      console.error('Limitador persistente indisponível:', error.code || error.name || 'DatabaseError');
+      return json(res, 503, { error: 'Limitador persistente indisponível.', code: 'RATE_LIMIT_UNAVAILABLE' });
+    }
     if (!persistentLimit.allowed) return json(res, 429, {
       error: 'Muitas mensagens em pouco tempo. Aguarde e tente novamente.',
       code: 'RATE_LIMITED'
