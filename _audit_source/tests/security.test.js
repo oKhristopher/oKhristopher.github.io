@@ -83,5 +83,6 @@ test('persistent limiter repairs its unique database key before serving requests
   assert.match(server, /ALTER TABLE request_rate_limits ADD COLUMN IF NOT EXISTS key_hash CHAR\(64\)/);
   assert.match(server, /CREATE UNIQUE INDEX IF NOT EXISTS idx_request_rate_limits_identity ON request_rate_limits \(key_hash, window_start, window_seconds\)/);
   assert.match(server, /ON CONFLICT \(key_hash, window_start, window_seconds\) DO UPDATE/);
+  assert.match(server, /to_timestamp\(\(\$2::bigint \+ \$3::integer\)::double precision\)/);
   assert.match(server, /console\.error\('Limitador persistente indisponível:', error\.code \|\| error\.name \|\| 'DatabaseError'\)/);
 });
