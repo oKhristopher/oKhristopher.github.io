@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#090909">
+<meta name="theme-color" content="#f5f7fa">
 <meta name="description" content="Portfólio de Khristopher Vasconcellos Vieira. Suporte técnico, SAP Business One, desenvolvimento web e automação.">
 <title>Khristopher Vasconcellos Vieira | Portfólio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{color-scheme:dark;--bg:#090909;--panel:#111;--line:#2b2b2b;--text:#f4f4f4;--muted:#a0a0a0;--red:#ff3153;--mono:"DM Mono",monospace;--sans:"Manrope",Arial,sans-serif}
+:root{color-scheme:light;--bg:#f5f7fa;--panel:#ffffff;--line:#e3e7ee;--text:#172033;--muted:#647084;--red:#315bd6;--mono:"DM Mono",monospace;--sans:"Manrope",Arial,sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;scroll-padding-top:90px;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.65;min-height:100vh;min-height:100svh;-webkit-font-smoothing:antialiased}
@@ -61,13 +61,40 @@ footer{border-top:1px solid var(--line);padding:22px 0 calc(22px + env(safe-area
 @media(max-width:760px){.wrap{width:calc(100% - 38px)}.nav{min-height:62px;align-items:flex-start;padding:17px 0}.nav-links{gap:12px;overflow-x:auto;max-width:72%;scrollbar-width:none}.nav-links::-webkit-scrollbar{display:none}.nav-links a{font-size:9px;white-space:nowrap}.hero{min-height:calc(86svh - 62px);padding:76px 0 80px}.hero h1{font-size:clamp(43px,12vw,76px)}.hero-copy{font-size:14px}.scroll-note{right:0;bottom:20px}.content-section{padding:65px 0!important}.section-head{display:block}.section-head p{margin-top:12px}.projects{grid-template-columns:minmax(0,1fr)}.card{padding:18px}.store-content strong{font-size:clamp(22px,8vw,34px)}.skills{grid-template-columns:minmax(0,1fr)}.skill,.skill:nth-child(even){padding:15px 0;border-left:0}.timeline-item{grid-template-columns:1fr;gap:8px}.about-grid{grid-template-columns:1fr;gap:20px}.resume-box{align-items:flex-start;flex-direction:column;padding:20px}.resume-actions{width:100%}.resume-actions .btn{flex:1}.contact-links{gap:15px}footer{font-size:9px}}
 @media(max-width:360px){.wrap{width:calc(100% - 28px)}.nav-links{gap:9px;max-width:69%}.nav-links a{font-size:8px}.hero h1{font-size:41px}.card{padding:14px}.btn{padding:0 12px;font-size:10px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.reveal{opacity:1!important;transform:none!important}.intro{display:none!important}}
+
+body{background:var(--bg);background-image:radial-gradient(ellipse at 85% 8%,rgba(49,91,214,.08),transparent 32%),linear-gradient(180deg,#f8f9fc 0%,#f3f5f9 100%)}
+header{background:rgba(255,255,255,.9);border-bottom:1px solid #dce2ec;box-shadow:0 4px 22px rgba(22,34,56,.035)}
+.logo{color:#172033}.logo span{color:var(--red)}.nav-links a{color:#667187}.nav-links a:hover{color:#2449b7}
+.hero{min-height:calc(82svh - 72px);padding-top:110px;padding-bottom:110px}
+.hero:before{content:"";position:absolute;right:2%;top:22%;width:clamp(170px,28vw,360px);aspect-ratio:1;border:1px solid rgba(49,91,214,.12);border-radius:50%;box-shadow:0 0 0 32px rgba(49,91,214,.025),0 0 0 64px rgba(49,91,214,.018);pointer-events:none}
+.eyebrow,.section-kicker{color:#315bd6}.hero h1{position:relative;color:#172033;max-width:900px;letter-spacing:-.07em}.hero h1 span{color:#65738d}.hero-copy{color:#58657a;max-width:620px}
+.btn{border:1px solid #cbd3e1;color:#26344d;background:#fff;border-radius:7px;min-height:48px;padding-inline:20px;font-family:var(--sans);font-weight:700;letter-spacing:0;box-shadow:0 3px 10px rgba(22,34,56,.035)}
+.btn.primary{background:#315bd6;border-color:#315bd6;color:#fff;box-shadow:0 8px 20px rgba(49,91,214,.18)}
+.btn:hover{border-color:#315bd6;color:#2449b7;transform:translateY(-2px)}.btn.primary:hover{background:#2449b7;color:#fff}
+.scroll-note{color:#718098;font-family:var(--sans);font-weight:600;letter-spacing:.04em;text-transform:none}
+section.content-section{border-top:1px solid #e1e6ef}.section-head h2{color:#172033}.section-head p{color:#68758a}
+.projects{gap:22px}.card{background:rgba(255,255,255,.96);border:1px solid #e1e6ef;border-radius:13px;padding:25px;box-shadow:0 8px 28px rgba(28,43,70,.045);transition:transform .28s ease,box-shadow .28s ease,border-color .28s ease}
+.card:hover{transform:translateY(-5px);border-color:#c7d3ee;box-shadow:0 18px 38px rgba(28,43,70,.09)}
+.card-top{color:#315bd6}.preview{border:1px solid #e0e5ed;border-radius:8px}.card h3{color:#1c2940}.card p{color:#667287}
+.tags span{border:1px solid #e1e6ef;background:#f7f8fb;color:#59667b;border-radius:4px}
+.card-link{color:#294fbf;border-bottom-color:#9aafe9;font-family:var(--sans);font-weight:700;font-size:12px}.card-link:hover{color:#173a9c}.note{color:#778399!important}
+.skills{border-top-color:#dce2ec}.skill{border-bottom-color:#dce2ec}.skill:nth-child(even){border-left-color:#dce2ec}.skill .num{color:#315bd6}.skill strong{color:#27344b}
+.timeline{border-top-color:#dce2ec}.timeline-item{border-bottom-color:#dce2ec}.timeline-meta{color:#315bd6}.timeline-item h3{color:#1e2b42}.timeline-item p,.about-copy p{color:#657187}
+.about-grid h2{color:#172033}.resume-box{background:#fff;border:1px solid #dfe5ef;border-radius:12px;box-shadow:0 8px 28px rgba(28,43,70,.045)}
+.resume-box h3{color:#1b2940}.resume-box p{color:#68758a}.contact-title{color:#172033}.contact-title span{color:#315bd6}.contact-copy{color:#657187}
+.contact-links a{color:#30415f;border-bottom-color:#cbd4e3;font-family:var(--sans);font-weight:700}.contact-links a:hover{border-color:#315bd6;color:#315bd6}
+footer{border-top-color:#dce2ec;color:#778399}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+@media(max-width:760px){.hero:before{right:-4%;top:17%;width:170px;opacity:.65}.card{box-shadow:0 5px 20px rgba(28,43,70,.045)}}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1!important;transform:none!important}.card:hover,.btn:hover{transform:none!important}}
+
 </style>
 </head>
 <body>
-<div class="intro" id="intro" aria-hidden="true"><div class="intro-inner"><div class="intro-k">K</div><div class="intro-rule"></div><div class="intro-name">KHRISTOPHER <span>VASCONCELLOS VIEIRA</span></div></div></div>
 <header><div class="wrap nav"><a class="logo" href="#top">KVV<span>_</span></a><nav class="nav-links" aria-label="Navegação principal"><a href="#projetos">Projetos</a><a href="#competencias">Competências</a><a href="#experiencia">Experiência</a><a href="#sobre">Sobre</a><a href="#contato">Contato</a></nav></div></header>
 <main id="top">
-<section class="hero wrap"><p class="eyebrow">// Suporte técnico · SAP Business One · Araraquara, SP</p><h1>Khristopher<br><span>Vasconcellos Vieira.</span></h1><p class="hero-copy">Atuo com suporte técnico, SAP Business One, administração de usuários e licenças. Também desenvolvo sites e crio pequenas automações para facilitar tarefas do dia a dia.</p><div class="actions"><a class="btn primary" href="#projetos">Ver projetos ↘</a><a class="btn" href="mailto:khristopheer4@gmail.com">Enviar e-mail ↗</a></div><div class="scroll-note">Role para explorar ↓</div></section>
+<section class="hero wrap"><p class="eyebrow">SUPORTE DE TI · SAP BUSINESS ONE · DESENVOLVIMENTO WEB</p><h1>Khristopher<br><span>Vasconcellos Vieira.</span></h1><p class="hero-copy">Atuo com suporte técnico, SAP Business One, administração de usuários e licenças. Também desenvolvo sites e crio pequenas automações para facilitar tarefas do dia a dia.</p><div class="actions"><a class="btn primary" href="#projetos">Ver projetos ↘</a><a class="btn" href="mailto:khristopheer4@gmail.com">Enviar e-mail ↗</a></div><div class="scroll-note">Explore o portfólio <span aria-hidden="true">↓</span></div></section>
 <section class="content-section" id="projetos"><div class="wrap"><div class="section-head"><div><p class="section-kicker">01 / Projetos</p><h2>Projetos em desenvolvimento<br>e/ou concluídos</h2></div><p>Projetos que desenvolvi para clientes e ideias que ainda estou colocando em prática.</p></div><div class="projects">
 <article class="card reveal"><div class="card-top"><span>01 · Negócio real</span><span>Web</span></div><div class="preview" role="img" aria-label="Prévia conceitual do e-commerce Ateliê Vânia Vieira"><div class="preview-store"><div class="store-brand">ATELIÊ <span>VÂNIA VIEIRA</span></div><div class="store-content"><div><small>PEÇAS AUTORAIS</small><strong>Detalhes que<br>tornam tudo<br>especial.</strong></div><div class="bear" aria-hidden="true">♡</div></div></div></div><h3>E-commerce · Ateliê Vânia Vieira</h3><p>Desenvolvi e publiquei a loja virtual do Ateliê Vânia Vieira com React e Next.js, incluindo a configuração do domínio próprio.</p><div class="tags"><span>React</span><span>Next.js</span><span>Vercel</span><span>E-commerce</span></div><a class="card-link" href="https://atelievaniavieira.com.br/" target="_blank" rel="noopener noreferrer">Visitar e-commerce publicado ↗</a><br><a class="card-link" href="https://www.linkedin.com/feed/update/urn:li:activity:7482135290166501377/" target="_blank" rel="noopener noreferrer">Ver publicação no LinkedIn ↗</a></article>
 <article class="card reveal"><div class="card-top"><span>02 · Cliente real</span><span>Web · Cloudflare</span></div><div class="preview" role="img" aria-label="Prévia conceitual do site N L Assessoria Contábil para MEI"><div class="preview-accounting"><div class="accounting-brand">N L <span>ASSESSORIA CONTÁBIL</span></div><div class="accounting-content"><small>CONTABILIDADE PARA MEI</small><strong>Seu negócio em dia.<br><em>Sem complicação.</em></strong><span>ABERTURA · REGULARIZAÇÃO · DAS · NFS-e</span></div><div class="accounting-footer">WHATSAPP ↗</div></div></div><h3>Site institucional · N L Assessoria Contábil</h3><p>Criei um site responsivo para a N L Assessoria Contábil, com apresentação dos serviços para MEI e botão de contato pelo WhatsApp.</p><div class="tags"><span>HTML5</span><span>CSS3</span><span>Responsivo</span><span>Cloudflare</span><span>CSP</span></div><a class="card-link" href="https://nl-assessoria-contabil.contabilidadenl.workers.dev/" target="_blank" rel="noopener noreferrer">Visitar site publicado ↗</a></article>
@@ -87,21 +114,20 @@ footer{border-top:1px solid var(--line);padding:22px 0 calc(22px + env(safe-area
 <noscript><style>.intro{display:none!important}.reveal{opacity:1!important;transform:none!important}</style></noscript>
 <script>
 (function(){
- const intro=document.getElementById('intro');
+ const year=document.getElementById('year');
+ if(year)year.textContent=new Date().getFullYear();
  const reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
- if(intro){
-  if(reduced){intro.remove();}
-  else{
-   document.body.style.overflow='hidden';
-   const finish=()=>{if(!intro.isConnected)return;intro.classList.add('done');document.body.style.overflow='';window.setTimeout(()=>{if(intro.isConnected)intro.remove();},800);};
-   window.setTimeout(finish,1800);
-   window.setTimeout(finish,3500);
-  }
- }
- const year=document.getElementById('year');if(year)year.textContent=new Date().getFullYear();
  const reveals=document.querySelectorAll('.reveal');
- if(reduced||!('IntersectionObserver' in window)){reveals.forEach(el=>el.classList.add('visible'));}
- else{const observer=new IntersectionObserver((entries,obs)=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('visible');obs.unobserve(entry.target);}});},{threshold:.08});reveals.forEach(el=>observer.observe(el));}
+ if(reduced||!('IntersectionObserver' in window)){
+  reveals.forEach(el=>el.classList.add('visible'));
+ }else{
+  const observer=new IntersectionObserver((entries,obs)=>{
+   entries.forEach(entry=>{
+    if(entry.isIntersecting){entry.target.classList.add('visible');obs.unobserve(entry.target);}
+   });
+  },{threshold:.1,rootMargin:'0px 0px -35px 0px'});
+  reveals.forEach((el,index)=>{el.style.transitionDelay=(index%2)*90+'ms';observer.observe(el);});
+ }
 })();
 </script>
 </body>
