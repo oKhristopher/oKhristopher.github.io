@@ -150,6 +150,7 @@
   "nativo": "native",
   "Inglês:": "English:",
   "intermediário": "intermediate",
+  "intermediário/avançado": "intermediate/advanced",
   "Espanhol:": "Spanish:",
   "Currículo profissional.": "Professional resume.",
   "Desenvolvedor Web Júnior · Front-end Developer": "Junior Web Developer · Front-end Developer",
