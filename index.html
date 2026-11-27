@@ -2,66 +2,196 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#f7f8fa">
-<meta name="description" content="Portfólio de Khristopher Vasconcellos Vieira, Desenvolvedor Web Júnior e profissional de TI.">
-<title>Khristopher Vasconcellos Vieira | Portfólio</title>
+<meta name="description" content="Portfólio de Khristopher Vasconcellos Vieira — Desenvolvedor Web Júnior e profissional de TI em Araraquara, SP.">
+<title>Khristopher Vasconcellos Vieira | Desenvolvedor Web</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{color-scheme:light;--bg:#f7f8fa;--paper:#fff;--ink:#202632;--muted:#697382;--line:#e7e9ed;--accent:#315bd6;--sans:"Manrope",Arial,sans-serif;--body:"DM Sans",Arial,sans-serif}
-*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth;scroll-padding-top:88px}body{background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.7;-webkit-font-smoothing:antialiased}
-a{color:inherit;text-decoration:none}.wrap{width:min(1080px,calc(100% - 48px));margin:auto}
-header{position:sticky;top:0;z-index:20;background:rgba(247,248,250,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
-.nav{height:72px;display:flex;align-items:center;justify-content:space-between}.brand{font:800 15px var(--sans);letter-spacing:-.04em}.brand span{color:var(--accent)}.navlinks{display:flex;gap:28px;color:var(--muted);font-size:13px}.navlinks a:hover{color:var(--accent)}
-.hero{min-height:610px;display:grid;grid-template-columns:1fr 230px;align-items:center;gap:72px;padding-top:75px;padding-bottom:95px}
-.kicker{font:600 11px var(--body);letter-spacing:.13em;text-transform:uppercase;color:var(--accent);margin-bottom:24px}
-h1,h2,h3{font-family:var(--sans);letter-spacing:-.055em;line-height:1.12}h1{font-size:clamp(42px,6.3vw,76px);font-weight:700;max-width:730px}h1 span{color:#7b8491}
-.intro{max-width:590px;color:var(--muted);font-size:17px;margin:26px 0 30px}
-.actions{display:flex;gap:12px;flex-wrap:wrap}.button{display:inline-flex;align-items:center;justify-content:center;min-height:45px;padding:0 19px;border:1px solid #d8dce3;border-radius:5px;font-size:13px;font-weight:600;transition:background .2s,border-color .2s}.button.primary{background:var(--accent);border-color:var(--accent);color:white}.button:hover{border-color:var(--accent)}
-.portrait{width:210px;aspect-ratio:1;border-radius:50%;object-fit:cover;display:block;box-shadow:0 12px 35px #20263212}
-.section{padding:92px 0;border-top:1px solid var(--line)}.section-head{display:flex;align-items:end;justify-content:space-between;gap:35px;margin-bottom:38px}.section-index{font-size:11px;color:var(--accent);letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px}.section h2{font-size:clamp(30px,4vw,44px)}.section-head>p{max-width:390px;color:var(--muted);font-size:14px}
-.projects{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.project{background:var(--paper);border:1px solid var(--line);border-radius:7px;padding:27px;min-height:220px;transition:transform .65s cubic-bezier(.2,.7,.2,1),opacity .65s ease,border-color .2s;transition-delay:var(--delay,0ms)}
-.project:hover{border-color:#cbd4eb}.project h3{font-size:21px;margin:13px 0 10px}.project p{font-size:14px;color:var(--muted);max-width:480px}.project-meta{font-size:11px;color:var(--accent);letter-spacing:.08em;text-transform:uppercase}.project-bottom{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:22px;flex-wrap:wrap}.stack{font-size:11px;color:#818a97}.project-link{font-size:12px;font-weight:700;color:var(--accent)}
-.reveal{opacity:0;transform:translateY(22px)}.reveal.visible{opacity:1;transform:translateY(0)}
-.skills{display:grid;grid-template-columns:repeat(2,1fr);border-top:1px solid var(--line)}.skill{padding:18px 4px;border-bottom:1px solid var(--line);font-size:14px}.skill:nth-child(even){padding-left:24px;border-left:1px solid var(--line)}
-.experience{display:grid;grid-template-columns:180px 1fr;gap:32px;padding:23px 0;border-top:1px solid var(--line)}.experience:last-child{border-bottom:1px solid var(--line)}.experience small{color:var(--accent);font-size:12px}.experience h3{font-size:19px;margin-bottom:8px}.experience p,.about p{font-size:14px;color:var(--muted);max-width:690px}
-.about-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:60px}.about h2{font-size:clamp(30px,4vw,43px)}.about p+p{margin-top:15px}
-.resume{display:flex;align-items:center;justify-content:space-between;gap:25px;padding:26px;background:var(--paper);border:1px solid var(--line);border-radius:7px}.resume h3{font-size:19px}.resume p{font-size:13px;color:var(--muted);margin-top:5px}.resume-actions{display:flex;gap:10px;flex-wrap:wrap}
-.contact{padding:95px 0}.contact h2{font-size:clamp(36px,6vw,62px);max-width:650px}.contact p{color:var(--muted);margin:18px 0 25px}.contact-links{display:flex;gap:23px;flex-wrap:wrap;font-size:13px;font-weight:600}.contact-links a:hover{color:var(--accent)}
+:root{color-scheme:light;--bg:#f7f8fa;--surface:#fff;--ink:#202632;--muted:#687382;--line:#e5e8ed;--accent:#315bd6;--accent-soft:#edf1fc;--display:"Manrope",Arial,sans-serif;--body:"DM Sans",Arial,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:88px}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.7;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+a:focus-visible,button:focus-visible{outline:3px solid #7895ed;outline-offset:4px}
+.wrap{width:min(1100px,calc(100% - 48px));margin-inline:auto}
+header{position:sticky;top:0;z-index:20;background:rgba(247,248,250,.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.nav{height:72px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.brand{font:800 16px var(--display);letter-spacing:-.06em}
+.brand span{color:var(--accent)}
+.navlinks{display:flex;gap:25px;color:var(--muted);font-size:13px}
+.navlinks a{transition:color .25s ease}
+.navlinks a:hover,.navlinks a[aria-current=location]{color:var(--accent)}
+.hero{min-height:630px;display:grid;grid-template-columns:minmax(0,1fr) 250px;align-items:center;gap:76px;padding-block:82px 100px}
+.eyebrow,.section-index{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.eyebrow{margin-bottom:24px}
+h1,h2,h3{font-family:var(--display);letter-spacing:-.055em;line-height:1.15}
+h1{font-size:clamp(42px,6.2vw,74px);font-weight:700;max-width:760px}
+h1 span{color:#778292}
+.hero-copy{max-width:610px;color:var(--muted);font-size:17px;margin:25px 0 30px}
+.actions,.resume-actions{display:flex;gap:11px;flex-wrap:wrap}
+.button{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 19px;border:1px solid #d5dae2;border-radius:4px;font-size:13px;font-weight:700;transition:background .25s ease,color .25s ease,border-color .25s ease,transform .25s ease}
+.button:hover{transform:translateY(-2px);border-color:var(--accent)}
+.button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.button.primary:hover{background:#244bbd}
+.portrait{width:230px;aspect-ratio:1;object-fit:cover;object-position:center;border-radius:50%;display:block;border:7px solid #fff;box-shadow:0 16px 42px #20263215}
+.section{padding:91px 0;border-top:1px solid var(--line)}
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:36px;margin-bottom:36px}
+.section-index{margin-bottom:13px}
+.section h2,.about h2{font-size:clamp(30px,4vw,43px)}
+.section-head>p{max-width:410px;color:var(--muted);font-size:14px}
+.projects{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.project{background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:27px;min-height:224px;display:flex;flex-direction:column;transition:opacity 1.15s ease,transform 1.15s cubic-bezier(.19,1,.22,1),border-color .25s ease;transition-delay:var(--delay,0ms)}
+.project:hover{border-color:#c4cee6}
+.project h3{font-size:21px;margin:12px 0 9px}
+.project p{font-size:14px;color:var(--muted)}
+.project-meta{font-size:10px!important;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--accent)!important}
+.project-bottom{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:auto;padding-top:21px;flex-wrap:wrap}
+.stack{font-size:11px;color:#818a97}
+.project-link{font-size:12px;font-weight:700;color:var(--accent)}
+.project-link:hover{text-decoration:underline;text-underline-offset:4px}
+.skills{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid var(--line)}
+.skill{padding:17px 4px;border-bottom:1px solid var(--line);font-size:14px}
+.skill:nth-child(even){padding-left:24px;border-left:1px solid var(--line)}
+.experience{display:grid;grid-template-columns:190px minmax(0,1fr);gap:32px;padding:24px 0;border-top:1px solid var(--line)}
+.experience:last-child{border-bottom:1px solid var(--line)}
+.experience small{color:var(--accent);font-size:12px;font-weight:600}
+.experience h3{font-size:19px;margin-bottom:8px}
+.experience p,.about p{font-size:14px;color:var(--muted);max-width:720px}
+.about-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:65px}
+.about h2{max-width:390px}
+.about p+p{margin-top:15px}
+.education{margin-top:26px;padding-top:20px;border-top:1px solid var(--line)}
+.education h3{font-size:17px;margin-bottom:5px}
+.education p{font-size:13px}
+.resume{display:flex;align-items:center;justify-content:space-between;gap:25px;padding:27px;background:var(--surface);border:1px solid var(--line);border-radius:5px}
+.resume h3{font-size:19px}
+.resume p{font-size:13px;color:var(--muted);margin-top:5px}
+.contact{padding:100px 0}
+.contact h2{font-size:clamp(36px,5.7vw,61px);max-width:680px}
+.contact> .wrap>p:not(.section-index){color:var(--muted);margin:18px 0 25px}
+.contact-links{display:flex;gap:24px;flex-wrap:wrap;font-size:13px;font-weight:700}
+.contact-links a:hover{color:var(--accent)}
 footer{border-top:1px solid var(--line);padding:22px 0;color:#89919c;font-size:11px}
-@media(max-width:700px){.wrap{width:calc(100% - 38px)}.nav{height:62px}.navlinks{gap:13px;font-size:11px}.hero{min-height:auto;grid-template-columns:1fr;gap:28px;padding:76px 0 78px}.portrait{grid-row:1;width:112px}.intro{font-size:15px}.section{padding:68px 0}.section-head{display:block}.section-head>p{margin-top:14px}.projects{grid-template-columns:1fr}.project{padding:22px}.skills{grid-template-columns:1fr}.skill:nth-child(even){padding-left:4px;border-left:0}.experience{grid-template-columns:1fr;gap:8px}.about-grid{grid-template-columns:1fr;gap:20px}.resume{align-items:flex-start;flex-direction:column}.contact{padding:72px 0}}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.reveal{opacity:1;transform:none;transition:none}}
+.reveal{opacity:0;transform:translateY(30px)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+@media(max-width:760px){
+ .wrap{width:calc(100% - 38px)}
+ .nav{height:64px}
+ .navlinks{gap:14px;overflow-x:auto;white-space:nowrap;font-size:11px;scrollbar-width:none}
+ .navlinks::-webkit-scrollbar{display:none}
+ .hero{min-height:auto;grid-template-columns:1fr;gap:28px;padding-block:65px 76px}
+ .portrait{grid-row:1;width:118px;border-width:4px}
+ .hero-copy{font-size:15px}
+ .section{padding:69px 0}
+ .section-head{display:block}
+ .section-head>p{margin-top:14px}
+ .projects{grid-template-columns:1fr}
+ .project{padding:23px;min-height:205px}
+ .skills{grid-template-columns:1fr}
+ .skill:nth-child(even){padding-left:4px;border-left:0}
+ .experience{grid-template-columns:1fr;gap:7px}
+ .about-grid{grid-template-columns:1fr;gap:20px}
+ .resume{align-items:flex-start;flex-direction:column}
+ .contact{padding:75px 0}
+}
+@media(prefers-reduced-motion:reduce){
+ html{scroll-behavior:auto}
+ *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+ .reveal{opacity:1;transform:none}
+}
 </style>
 </head>
 <body>
-<header><div class="wrap nav"><a class="brand" href="#inicio">KV<span>.</span></a><nav class="navlinks" aria-label="Navegação"><a href="#projetos">Projetos</a><a href="#experiencia">Experiência</a><a href="#sobre">Sobre</a><a href="#contato">Contato</a></nav></div></header>
+<header>
+ <div class="wrap nav">
+  <a class="brand" href="#inicio" aria-label="Khristopher — início">KV<span>.</span></a>
+  <nav class="navlinks" aria-label="Navegação principal">
+   <a href="#projetos">Projetos</a><a href="#competencias">Conhecimentos</a><a href="#experiencia">Experiência</a><a href="#sobre">Sobre</a><a href="#contato">Contato</a>
+  </nav>
+ </div>
+</header>
 <main id="inicio">
-<section class="wrap hero">
-<div><p class="kicker">Desenvolvedor Web Júnior · TI</p><h1>Khristopher<br><span>Vasconcellos Vieira</span></h1><p class="intro">Desenvolvimento de sites e lojas virtuais, com experiência em suporte de TI, SAP Business One e automação de processos.</p><div class="actions"><a class="button primary" href="#projetos">Conhecer projetos</a><a class="button" href="curriculo-khristopher.pdf" download>Baixar currículo</a></div></div>
-<img class="portrait" src="profile-khristopher.jpg" alt="Foto de perfil de Khristopher Vasconcellos Vieira">
-</section>
-<section class="section" id="projetos"><div class="wrap"><div class="section-head"><div><p class="section-index">01 / Projetos</p><h2>Trabalhos selecionados</h2></div><p>Projetos desenvolvidos para clientes e iniciativas próprias, do desenvolvimento à publicação.</p></div><div class="projects">
-<article class="project reveal"><p class="project-meta">Loja virtual · Entregue</p><h3>Ateliê da Make</h3><p>Loja virtual de maquiagem e cosméticos com catálogo, carrinho, checkout via WhatsApp, painel administrativo e integração com Instagram.</p><div class="project-bottom"><span class="stack">Next.js · React · Cloudflare</span><a class="project-link" href="https://atelie-da-make.pages.dev/" target="_blank" rel="noopener">Visitar projeto ↗</a></div></article>
-<article class="project reveal"><p class="project-meta">E-commerce · Publicado</p><h3>Ateliê Vânia Vieira</h3><p>Loja virtual de artesanato em feltro, com catálogo, carrinho, checkout pelo WhatsApp e domínio personalizado.</p><div class="project-bottom"><span class="stack">Next.js · React · Vercel</span><a class="project-link" href="https://atelievaniavieira.com.br/" target="_blank" rel="noopener">Visitar projeto ↗</a></div></article>
-<article class="project reveal"><p class="project-meta">Site institucional · Publicado</p><h3>N L Assessoria Contábil</h3><p>Site responsivo para apresentação de serviços contábeis voltados a MEI, com contato direto pelo WhatsApp.</p><div class="project-bottom"><span class="stack">HTML · CSS · Cloudflare</span><a class="project-link" href="https://nl-assessoria-contabil.contabilidadenl.workers.dev/" target="_blank" rel="noopener">Visitar projeto ↗</a></div></article>
-<article class="project reveal"><p class="project-meta">Automação · Python</p><h3>Chatbot para WhatsApp e Instagram</h3><p>Atendimento automatizado com respostas por palavras-chave e transcrição local de áudio com OpenAI Whisper.</p><div class="project-bottom"><span class="stack">Python · FastAPI · Whisper</span><span class="stack">Projeto próprio</span></div></article>
-<article class="project reveal"><p class="project-meta">Aplicação · Python</p><h3>Buscador de vagas de TI</h3><p>Aplicação para buscar e organizar oportunidades nas áreas de suporte, help desk e desenvolvimento júnior.</p><div class="project-bottom"><span class="stack">Python</span><a class="project-link" href="https://github.com/oKhristopher/search-empregos" target="_blank" rel="noopener">GitHub ↗</a></div></article>
-<article class="project reveal"><p class="project-meta">Aplicativo · Em desenvolvimento</p><h3>Palavra Viva</h3><p>Aplicativo que relaciona situações e sentimentos a passagens bíblicas, com foco no contexto e em referências verificáveis.</p><div class="project-bottom"><span class="stack">Flutter · Dart · Gemini</span><a class="project-link" href="https://palavra-viva-mybr.onrender.com" target="_blank" rel="noopener">Abrir projeto ↗</a></div></article>
-</div></div></section>
-<section class="section" id="competencias"><div class="wrap"><div class="section-head"><div><p class="section-index">02 / Conhecimentos</p><h2>Áreas de atuação</h2></div></div><div class="skills"><div class="skill">HTML5, CSS3 e JavaScript</div><div class="skill">React e Next.js</div><div class="skill">Python e automação</div><div class="skill">Node.js, FastAPI e API REST</div><div class="skill">SQL e SQL Server</div><div class="skill">Git, GitHub e deploy</div><div class="skill">SAP Business One</div><div class="skill">Suporte técnico e infraestrutura</div></div></div></section>
-<section class="section" id="experiencia"><div class="wrap"><div class="section-head"><div><p class="section-index">03 / Trajetória</p><h2>Experiência</h2></div></div>
-<article class="experience reveal"><small>Experiência atual</small><div><h3>Auxiliar de TI · Hidrara</h3><p>Administração de usuários, licenças e acessos no SAP Business One 10.0; consultas e relatórios SQL; suporte a usuários, equipamentos e conectividade; automações com Python.</p></div></article>
-<article class="experience reveal"><small>Atuação autônoma</small><div><h3>Desenvolvedor Web e Suporte Técnico</h3><p>Desenvolvimento de sites e lojas virtuais para clientes, da interface à publicação, além de suporte técnico e manutenção de computadores.</p></div></article>
-<article class="experience reveal"><small>Formação · 2024</small><div><h3>Análise e Desenvolvimento de Sistemas · UNIP</h3><p>Graduação concluída em 2024. Formação complementar em Automação com Python e Cibersegurança.</p></div></article>
-</div></section>
-<section class="section about" id="sobre"><div class="wrap about-grid"><div><p class="section-index">04 / Sobre</p><h2>Tecnologia aplicada a problemas reais.</h2></div><div><p>Sou formado em Análise e Desenvolvimento de Sistemas pela UNIP. Minha experiência combina desenvolvimento web com a rotina de TI corporativa.</p><p>Trabalho com suporte técnico e SAP Business One na Hidrara e desenvolvo projetos web de forma independente. Tenho interesse em construir soluções simples, funcionais e bem cuidadas.</p></div></div></section>
-<section class="section" id="curriculo"><div class="wrap"><div class="section-head"><div><p class="section-index">05 / Currículo</p><h2>Currículo profissional</h2></div></div><div class="resume"><div><h3>Khristopher Vasconcellos Vieira</h3><p>Desenvolvedor Web Júnior · Front-end Developer</p></div><div class="resume-actions"><a class="button primary" href="curriculo-khristopher.pdf" download>Baixar PDF</a><a class="button" href="curriculo-khristopher.pdf" target="_blank" rel="noopener">Visualizar currículo</a></div></div><div style="margin-top:22px;border:1px solid var(--line);background:#fff;border-radius:6px;overflow:hidden"><iframe title="Prévia do currículo em PDF" src="curriculo-khristopher.pdf#view=FitH" style="display:block;width:100%;height:720px;border:0"></iframe></div></div></section>
-<section class="contact" id="contato"><div class="wrap"><p class="section-index">06 / Contato</p><h2>Vamos conversar sobre tecnologia?</h2><p>Disponível para oportunidades em desenvolvimento web e tecnologia da informação.</p><div class="contact-links"><a href="mailto:khristopheer4@gmail.com">E-mail</a><a href="https://www.linkedin.com/in/khristopher-vieira" target="_blank" rel="noopener">LinkedIn</a><a href="https://github.com/oKhristopher" target="_blank" rel="noopener">GitHub</a></div></div></section>
+ <section class="wrap hero">
+  <div>
+   <p class="eyebrow">Desenvolvedor Web Júnior · Front-end</p>
+   <h1>Khristopher<br><span>Vasconcellos Vieira</span></h1>
+   <p class="hero-copy">Desenvolvo sites e lojas virtuais responsivos, da interface à publicação. Minha experiência em TI corporativa também envolve suporte técnico, SAP Business One, consultas SQL e automação com Python.</p>
+   <div class="actions">
+    <a class="button primary" href="#projetos">Ver projetos</a>
+    <a class="button" href="Curriculo_Khristopher_Vasconcellos_Vieira.pdf" download>Baixar currículo</a>
+   </div>
+  </div>
+  <img class="portrait" src="profile-khristopher.jpg" alt="Foto de perfil de Khristopher Vasconcellos Vieira" width="480" height="480">
+ </section>
+
+ <section class="section" id="projetos">
+  <div class="wrap">
+   <div class="section-head"><div><p class="section-index">01 / Projetos</p><h2>Projetos selecionados</h2></div><p>Desenvolvimento de soluções para clientes e projetos próprios, com atenção à interface, funcionamento e publicação.</p></div>
+   <div class="projects">
+    <article class="project reveal"><p class="project-meta">Loja virtual · Entregue</p><h3>Ateliê da Make</h3><p>Loja virtual de maquiagem e cosméticos com catálogo, carrinho, checkout via WhatsApp, opção de retirada ou entrega e painel administrativo para gerenciamento de imagens. Também inclui feed do Instagram e consentimento de cookies.</p><div class="project-bottom"><span class="stack">Next.js · React · JavaScript · Cloudflare</span><a class="project-link" href="https://atelie-da-make.pages.dev/" target="_blank" rel="noopener noreferrer">Acessar site ↗</a></div></article>
+    <article class="project reveal"><p class="project-meta">E-commerce · Publicado</p><h3>Ateliê Vânia Vieira</h3><p>Loja virtual de artesanato em feltro, com identidade visual própria, catálogo integrado ao carrinho, checkout via WhatsApp e domínio personalizado.</p><div class="project-bottom"><span class="stack">Next.js · React · Vercel</span><a class="project-link" href="https://atelievaniavieira.com.br/" target="_blank" rel="noopener noreferrer">Acessar site ↗</a></div></article>
+    <article class="project reveal"><p class="project-meta">Site institucional · Publicado</p><h3>N L Assessoria Contábil</h3><p>Site institucional responsivo para apresentação dos serviços contábeis, com acesso direto ao atendimento pelo WhatsApp.</p><div class="project-bottom"><span class="stack">HTML5 · CSS3 · Cloudflare</span><a class="project-link" href="https://nl-assessoria-contabil.contabilidadenl.workers.dev/" target="_blank" rel="noopener noreferrer">Acessar site ↗</a></div></article>
+    <article class="project reveal"><p class="project-meta">Automação · Python</p><h3>Chatbot para WhatsApp e Instagram</h3><p>Atendimento automatizado para escritório de contabilidade, com respostas a perguntas frequentes por palavras-chave e transcrição local de áudio com OpenAI Whisper.</p><div class="project-bottom"><span class="stack">Python · FastAPI · Whisper</span><span class="stack">Projeto próprio</span></div></article>
+    <article class="project reveal"><p class="project-meta">Aplicação · Python</p><h3>Buscador de vagas de TI</h3><p>Aplicação para buscar e organizar oportunidades nas áreas de suporte, help desk e desenvolvimento júnior.</p><div class="project-bottom"><span class="stack">Python</span><a class="project-link" href="https://github.com/oKhristopher/search-empregos" target="_blank" rel="noopener noreferrer">Ver repositório ↗</a></div></article>
+    <article class="project reveal"><p class="project-meta">Aplicativo · Em desenvolvimento</p><h3>Palavra Viva</h3><p>Aplicativo que relaciona situações e sentimentos a passagens bíblicas, com referências verificáveis e foco no contexto dos textos.</p><div class="project-bottom"><span class="stack">Flutter · Dart · Google Gemini</span><a class="project-link" href="https://palavra-viva-mybr.onrender.com" target="_blank" rel="noopener noreferrer">Abrir projeto ↗</a></div></article>
+    <article class="project reveal"><p class="project-meta">Portfólio pessoal</p><h3>Portfólio Web</h3><p>Site pessoal para apresentar projetos, conhecimentos, experiência profissional e currículo.</p><div class="project-bottom"><span class="stack">HTML · CSS · JavaScript</span><a class="project-link" href="https://github.com/oKhristopher/oKhristopher.github.io" target="_blank" rel="noopener noreferrer">Ver repositório ↗</a></div></article>
+   </div>
+  </div>
+ </section>
+
+ <section class="section" id="competencias">
+  <div class="wrap"><div class="section-head"><div><p class="section-index">02 / Conhecimentos</p><h2>Conhecimentos técnicos</h2></div><p>Ferramentas e tecnologias utilizadas em projetos e atividades profissionais.</p></div>
+   <div class="skills">
+    <div class="skill">HTML5, CSS3 e JavaScript (ES6+)</div><div class="skill">React e Next.js</div>
+    <div class="skill">Design responsivo, UI e componentização</div><div class="skill">Python e automação de processos</div>
+    <div class="skill">Node.js e FastAPI</div><div class="skill">API REST e integração de APIs</div>
+    <div class="skill">SQL e SQL Server</div><div class="skill">Git e GitHub</div>
+    <div class="skill">Vercel, Cloudflare, domínio e DNS</div><div class="skill">SAP Business One</div>
+    <div class="skill">Segurança web e LGPD</div><div class="skill">Chatbots e integração com IA</div>
+   </div>
+  </div>
+ </section>
+
+ <section class="section" id="experiencia">
+  <div class="wrap"><div class="section-head"><div><p class="section-index">03 / Trajetória</p><h2>Experiência profissional</h2></div></div>
+   <article class="experience reveal"><small>Experiência atual</small><div><h3>Auxiliar de TI · Hidrara</h3><p>Administração de usuários, licenças e acessos no SAP Business One 10.0 com SQL Server. Desenvolvimento, correção e formatação de consultas SQL e relatórios; análise de ocorrências em compras, pagamentos, DDA e faturamento; suporte a usuários, equipamentos, conectividade e drivers de rede. Automação de tarefas de manutenção com Python.</p></div></article>
+   <article class="experience reveal"><small>Atuação autônoma</small><div><h3>Desenvolvedor Web e Suporte Técnico</h3><p>Desenvolvimento de sites e lojas virtuais para clientes e negócios familiares, do layout à publicação. Suporte técnico e manutenção de computadores.</p></div></article>
+   <article class="experience reveal"><small>Experiência anterior</small><div><h3>Controlador de Acessos</h3><p>Experiência profissional anterior na área de controle de acessos.</p></div></article>
+  </div>
+ </section>
+
+ <section class="section about" id="sobre">
+  <div class="wrap about-grid">
+   <div><p class="section-index">04 / Sobre</p><h2>Desenvolvimento e suporte em tecnologia.</h2></div>
+   <div><p>Sou formado em Análise e Desenvolvimento de Sistemas pela UNIP e atuo na área de tecnologia, combinando desenvolvimento web com suporte de TI em ambiente corporativo.</p><p>Nos projetos web, trabalho desde a construção da interface até a publicação, configuração de domínio e ajustes. Na rotina de TI, atuo com SAP Business One, SQL, atendimento a usuários e automação de tarefas.</p>
+    <div class="education"><h3>Análise e Desenvolvimento de Sistemas · UNIP</h3><p>Graduação concluída em 2024.</p><p>Automação com Python · XPE (2024) &nbsp;|&nbsp; Cibersegurança · Escola DNC (2022)</p><p>Português nativo · Inglês intermediário · Espanhol intermediário</p></div>
+   </div>
+  </div>
+ </section>
+
+ <section class="section" id="curriculo">
+  <div class="wrap"><div class="section-head"><div><p class="section-index">05 / Currículo</p><h2>Currículo profissional</h2></div></div>
+   <div class="resume"><div><h3>Khristopher Vasconcellos Vieira</h3><p>Desenvolvedor Web Júnior · Front-end Developer</p></div><div class="resume-actions"><a class="button primary" href="Curriculo_Khristopher_Vasconcellos_Vieira.pdf" download>Baixar PDF</a><a class="button" href="Curriculo_Khristopher_Vasconcellos_Vieira.pdf" target="_blank" rel="noopener noreferrer">Visualizar currículo</a></div></div>
+   <div style="margin-top:20px;border:1px solid var(--line);background:#fff;border-radius:4px;overflow:hidden"><iframe title="Prévia do currículo em PDF" src="Curriculo_Khristopher_Vasconcellos_Vieira.pdf#view=FitH" style="display:block;width:100%;height:680px;border:0" loading="lazy"></iframe></div>
+  </div>
+ </section>
+
+ <section class="contact" id="contato">
+  <div class="wrap"><p class="section-index">06 / Contato</p><h2>Vamos conversar?</h2><p>Aberto a oportunidades em desenvolvimento web e tecnologia da informação.</p><div class="contact-links"><a href="mailto:khristopheer4@gmail.com">E-mail</a><a href="https://www.linkedin.com/in/khristopher-vieira" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a><a href="https://github.com/oKhristopher" target="_blank" rel="noopener noreferrer">GitHub ↗</a></div></div>
+ </section>
 </main>
 <footer><div class="wrap">Khristopher Vasconcellos Vieira · Araraquara, SP · <span id="year"></span></div></footer>
 <script>
-(()=>{document.getElementById('year').textContent=new Date().getFullYear();const items=document.querySelectorAll('.reveal');if(matchMedia('(prefers-reduced-motion: reduce)').matches||!('IntersectionObserver'in window)){items.forEach(x=>x.classList.add('visible'));return}const io=new IntersectionObserver((entries,obs)=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}}),{threshold:.12,rootMargin:'0px 0px -30px 0px'});items.forEach((el,i)=>{el.style.setProperty('--delay',(i%2)*80+'ms');io.observe(el)})})();
+(()=>{
+ const year=document.getElementById("year");if(year)year.textContent=new Date().getFullYear();
+ const items=[...document.querySelectorAll(".reveal")];
+ if(window.matchMedia("(prefers-reduced-motion: reduce)").matches||!("IntersectionObserver" in window)){items.forEach(el=>el.classList.add("visible"));return}
+ const observer=new IntersectionObserver((entries,obs)=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add("visible");obs.unobserve(entry.target)}})},{threshold:.08,rootMargin:"0px 0px -55px 0px"});
+ items.forEach((el,index)=>{el.style.setProperty("--delay",((index%2)*130)+"ms");observer.observe(el)});
+})();
 </script>
-</body></html>
+</body>
+</html>
