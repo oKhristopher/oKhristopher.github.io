@@ -203,7 +203,7 @@
       window.requestAnimationFrame(() => {
         document.documentElement.classList.remove('lang-swap');
       });
-    }, 140);
+    }, 320);
   };
   languageButtons.forEach((button) => {
     button.addEventListener('click', () => updateLanguage(button.dataset.lang));
