@@ -176,7 +176,8 @@
   const description = document.querySelector('meta[name="description"]');
   const descriptionPt = description?.content || '';
   const descriptionEn = 'Portfolio of Khristopher Vasconcellos Vieira, junior web developer in Araraquara, Brazil. Responsive websites and online stores, corporate IT, SAP Business One, SQL, and Python automation.';
-  const updateLanguage = (language) => {
+  let languageSwapTimer;
+  const applyLanguage = (language) => {
     const english = language === 'en';
     originalTextNodes.forEach(({ node, original, translated }) => {
       if (node.isConnected) node.nodeValue = english ? translated : original;
@@ -189,6 +190,20 @@
     if (navToggle) navToggle.setAttribute('aria-label', english ? 'Open menu' : 'Abrir menu');
     const skip = document.querySelector('.skip');
     if (skip) skip.setAttribute('aria-label', english ? 'Skip to content' : 'Ir para o conteúdo');
+  };
+  const updateLanguage = (language) => {
+    window.clearTimeout(languageSwapTimer);
+    if (reduce) {
+      applyLanguage(language);
+      return;
+    }
+    document.documentElement.classList.add('lang-swap');
+    languageSwapTimer = window.setTimeout(() => {
+      applyLanguage(language);
+      window.requestAnimationFrame(() => {
+        document.documentElement.classList.remove('lang-swap');
+      });
+    }, 140);
   };
   languageButtons.forEach((button) => {
     button.addEventListener('click', () => updateLanguage(button.dataset.lang));
